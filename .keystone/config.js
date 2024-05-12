@@ -65,6 +65,7 @@ var CONFIG = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || "secret",
   HEALTHBOT_ASSISTANT_ID: process.env.HEALTHBOT_ASSISTANT_ID || "assistant-1"
 };
+console.log(JSON.stringify(CONFIG, null, 2));
 
 // auth.ts
 var sessionSecret = CONFIG.SESSION_SECRET;
