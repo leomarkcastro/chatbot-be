@@ -27,7 +27,7 @@ aiRouteDeclaration.routes.set(
       const newThreadId = await createThread();
       return { sessionID: newThreadId.id, createdAt: newThreadId.created_at };
     },
-  })
+  }),
 );
 
 aiRouteDeclaration.routes.set(
@@ -45,6 +45,7 @@ aiRouteDeclaration.routes.set(
         body: { prompt, sessionID },
       },
       res,
+      context,
     }) => {
       await healthAiAssistant({
         threadId: sessionID,
@@ -59,11 +60,12 @@ aiRouteDeclaration.routes.set(
             }
           }
         },
+        keystoneArgs: context,
       });
 
       res.end();
     },
-  })
+  }),
 );
 
 export { aiRouteDeclaration };

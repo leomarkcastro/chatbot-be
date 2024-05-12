@@ -1,3 +1,6 @@
+import { KeystoneContext } from "@keystone-6/core/types";
+import { z } from "zod";
+import { GlobalTypeInfo } from "../../../../common/types";
 import {
   OpenAPISpec,
   fetchFunction,
@@ -1632,7 +1635,11 @@ export const cms_openapi: OpenAPISpec = {
   },
 };
 
-export async function getHealthAIFunctions() {
+export async function getHealthAIFunctions(apiArgs: {
+  keystone: KeystoneContext<GlobalTypeInfo>;
+  sessionID: string;
+  metadata: any;
+}) {
   const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
   const custom_functions = {
     applicationSubmit: {
@@ -1700,29 +1707,39 @@ export async function getHealthAIFunctions() {
           ],
         },
       },
-      function: (args: any) => {
-        console.log(JSON.stringify(args, null, 2));
-        console.log("Attempting to submit application...");
-        if (!args.fullname) {
-          return "Please provide your full name.";
+      function: async (args: any) => {
+        const zodObj = z.object({
+          fullname: z.string(),
+          email: z.string().email(),
+          phone: z.string(),
+          policyID: z.string(),
+          policyURL: z.string().url(),
+          location: z.object({
+            zip: z.string(),
+            county: z.string(),
+          }),
+        });
+
+        try {
+          zodObj.parse(args);
+          await apiArgs.keystone.prisma.inquiry.create({
+            data: {
+              fullname: args.fullname,
+              email: args.email,
+              phone: args.phone,
+              policyID: args.policyID,
+              policyURL: args.policyURL,
+              zip: args.location.zip,
+              address: args.location.county,
+            },
+          });
+          return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
+        } catch (e) {
+          // @ts-ignore
+          const zodError = e?.errors?.[0]?.message || "Invalid input";
+          console.log(e);
+          return zodError;
         }
-        if (!args.email) {
-          return "Please provide your email.";
-        }
-        if (!args.phone) {
-          return "Please provide your phone number.";
-        }
-        if (!args.policyURL || !args.policyID) {
-          return "Please also get the policyID and policyURL from the conversation history.";
-        }
-        if (!args.location.zip) {
-          return "Please provide your ZIP code.";
-        }
-        if (!args.location.county) {
-          return "Please provide your county.";
-        }
-        console.log("Application submitted successfully.");
-        return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
       },
     },
   };

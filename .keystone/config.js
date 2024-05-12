@@ -35,8 +35,8 @@ __export(keystone_exports, {
 module.exports = __toCommonJS(keystone_exports);
 var import_server_plugin_response_cache = __toESM(require("@apollo/server-plugin-response-cache"));
 var import_zod_to_openapi3 = require("@asteasolutions/zod-to-openapi");
-var import_core4 = require("@keystone-6/core");
-var import_zod5 = require("zod");
+var import_core5 = require("@keystone-6/core");
+var import_zod6 = require("zod");
 
 // auth.ts
 var import_auth = require("@keystone-6/auth");
@@ -65,7 +65,6 @@ var CONFIG = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || "secret",
   HEALTHBOT_ASSISTANT_ID: process.env.HEALTHBOT_ASSISTANT_ID || "assistant-1"
 };
-console.log(JSON.stringify(CONFIG, null, 2));
 
 // auth.ts
 var sessionSecret = CONFIG.SESSION_SECRET;
@@ -346,7 +345,7 @@ function bootstrapExpress(app, commonContext, extraRouteList) {
 }
 
 // modules/ai/rest.ts
-var import_zod3 = require("zod");
+var import_zod4 = require("zod");
 
 // modules/ai/services/functions/assistants/event-handler.ts
 var import_stream = require("stream");
@@ -425,6 +424,9 @@ var EventHandler = class extends import_stream.EventEmitter {
     }
   }
 };
+
+// modules/ai/services/lib/cms-openapi.ts
+var import_zod3 = require("zod");
 
 // modules/ai/services/functions/openapi_to_fx.ts
 var import_json_schema_ref_parser = __toESM(require("@apidevtools/json-schema-ref-parser"));
@@ -2129,7 +2131,7 @@ var cms_openapi = {
     schemas: {}
   }
 };
-async function getHealthAIFunctions() {
+async function getHealthAIFunctions(apiArgs) {
   const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
   const custom_functions = {
     applicationSubmit: {
@@ -2189,29 +2191,37 @@ async function getHealthAIFunctions() {
           ]
         }
       },
-      function: (args) => {
-        console.log(JSON.stringify(args, null, 2));
-        console.log("Attempting to submit application...");
-        if (!args.fullname) {
-          return "Please provide your full name.";
+      function: async (args) => {
+        const zodObj = import_zod3.z.object({
+          fullname: import_zod3.z.string(),
+          email: import_zod3.z.string().email(),
+          phone: import_zod3.z.string(),
+          policyID: import_zod3.z.string(),
+          policyURL: import_zod3.z.string().url(),
+          location: import_zod3.z.object({
+            zip: import_zod3.z.string(),
+            county: import_zod3.z.string()
+          })
+        });
+        try {
+          zodObj.parse(args);
+          await apiArgs.keystone.prisma.inquiry.create({
+            data: {
+              fullname: args.fullname,
+              email: args.email,
+              phone: args.phone,
+              policyID: args.policyID,
+              policyURL: args.policyURL,
+              zip: args.location.zip,
+              address: args.location.county
+            }
+          });
+          return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
+        } catch (e) {
+          const zodError = e?.errors?.[0]?.message || "Invalid input";
+          console.log(e);
+          return zodError;
         }
-        if (!args.email) {
-          return "Please provide your email.";
-        }
-        if (!args.phone) {
-          return "Please provide your phone number.";
-        }
-        if (!args.policyURL || !args.policyID) {
-          return "Please also get the policyID and policyURL from the conversation history.";
-        }
-        if (!args.location.zip) {
-          return "Please provide your ZIP code.";
-        }
-        if (!args.location.county) {
-          return "Please provide your county.";
-        }
-        console.log("Application submitted successfully.");
-        return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
       }
     }
   };
@@ -2220,9 +2230,7 @@ async function getHealthAIFunctions() {
 }
 
 // modules/ai/services/lib/openai.ts
-var import_dotenv = require("dotenv");
 var import_openai = __toESM(require("openai"));
-(0, import_dotenv.config)();
 var openai = new import_openai.default({
   apiKey: CONFIG.OPENAI_API_KEY
 });
@@ -2231,7 +2239,11 @@ var openai = new import_openai.default({
 async function healthAiAssistant(args) {
   const threadId = args.threadId;
   const assistantID = CONFIG.HEALTHBOT_ASSISTANT_ID;
-  const fx = await getHealthAIFunctions();
+  const fx = await getHealthAIFunctions({
+    keystone: args.keystoneArgs,
+    metadata: {},
+    sessionID: threadId
+  });
   let system = {
     running: true
   };
@@ -2297,9 +2309,9 @@ aiRouteDeclaration.routes.set(
   new RouteDeclarationMetadata({
     method: "post" /* POST */,
     inputParser: NO_INPUT,
-    outputParser: import_zod3.z.object({
-      sessionID: import_zod3.z.string(),
-      createdAt: import_zod3.z.number()
+    outputParser: import_zod4.z.object({
+      sessionID: import_zod4.z.string(),
+      createdAt: import_zod4.z.number()
     }),
     func: async ({}) => {
       const newThreadId = await createThread();
@@ -2311,17 +2323,18 @@ aiRouteDeclaration.routes.set(
   "/call",
   new RouteDeclarationMetadata({
     method: "post" /* POST */,
-    inputParser: import_zod3.z.object({
-      ["body" /* BODY */]: import_zod3.z.object({
-        sessionID: import_zod3.z.string(),
-        prompt: import_zod3.z.string()
+    inputParser: import_zod4.z.object({
+      ["body" /* BODY */]: import_zod4.z.object({
+        sessionID: import_zod4.z.string(),
+        prompt: import_zod4.z.string()
       })
     }),
     func: async ({
       inputData: {
         body: { prompt, sessionID }
       },
-      res
+      res,
+      context
     }) => {
       await healthAiAssistant({
         threadId: sessionID,
@@ -2334,7 +2347,8 @@ aiRouteDeclaration.routes.set(
               res.write(JSON.stringify(data) + "\n");
             }
           }
-        }
+        },
+        keystoneArgs: context
       });
       res.end();
     }
@@ -2567,7 +2581,7 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
 });
 
 // modules/auth/rest-api/index.ts
-var import_zod4 = require("zod");
+var import_zod5 = require("zod");
 
 // graphql/operations.ts
 var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
@@ -2618,10 +2632,10 @@ authRouteDeclaration.routes.set(
   "/signin",
   new RouteDeclarationMetadata({
     method: "post" /* POST */,
-    inputParser: import_zod4.z.object({
-      ["body" /* BODY */]: import_zod4.z.object({
-        username: import_zod4.z.string(),
-        password: import_zod4.z.string()
+    inputParser: import_zod5.z.object({
+      ["body" /* BODY */]: import_zod5.z.object({
+        username: import_zod5.z.string(),
+        password: import_zod5.z.string()
       })
     }),
     func: async ({
@@ -2658,16 +2672,16 @@ authRouteDeclaration.routes.set(
     accessConfig: serverAccessConfig({
       conditions: [hasRole({ roles: [PERMISSION_ENUM.ADMIN] })]
     }),
-    inputParser: import_zod4.z.object({
-      ["params" /* PARAMS */]: import_zod4.z.object({
-        id: import_zod4.z.preprocess((val) => parseInt(val), import_zod4.z.number()),
-        id2: import_zod4.z.preprocess((val) => parseInt(val), import_zod4.z.number())
+    inputParser: import_zod5.z.object({
+      ["params" /* PARAMS */]: import_zod5.z.object({
+        id: import_zod5.z.preprocess((val) => parseInt(val), import_zod5.z.number()),
+        id2: import_zod5.z.preprocess((val) => parseInt(val), import_zod5.z.number())
       }),
-      ["query" /* QUERY */]: import_zod4.z.object({
-        name: import_zod4.z.string()
+      ["query" /* QUERY */]: import_zod5.z.object({
+        name: import_zod5.z.string()
       }),
-      ["headers" /* HEADERS */]: import_zod4.z.object({
-        whoosh: import_zod4.z.string().default("whoosh")
+      ["headers" /* HEADERS */]: import_zod5.z.object({
+        whoosh: import_zod5.z.string().default("whoosh")
       })
     }),
     func: async ({ inputData, res }) => {
@@ -3006,26 +3020,61 @@ var authDefinition = {
   restExtensions: [authRouteDeclaration]
 };
 
-// modules/test/index.ts
+// modules/health_forms/index.ts
 var import_core3 = require("@keystone-6/core");
+var import_fields2 = require("@keystone-6/core/fields");
+var healthFormDefinition = {
+  schema: [
+    {
+      Inquiry: (0, import_core3.list)({
+        fields: {
+          fullname: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          email: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          phone: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          policyID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          policyURL: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          zip: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          address: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          sessionID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          addresed: (0, import_fields2.checkbox)(),
+          remarks: (0, import_fields2.text)()
+        },
+        access: accessConfig({
+          isAuthed: true,
+          operations: {
+            all: allow
+          },
+          filter: {
+            all: allow
+          }
+        })
+      })
+    }
+  ],
+  graphqlExtensions: [],
+  restExtensions: []
+};
+
+// modules/test/index.ts
+var import_core4 = require("@keystone-6/core");
 var testDefinition = {
   schema: [],
   graphqlExtensions: [
-    import_core3.graphql.extend((base) => {
+    import_core4.graphql.extend((base) => {
       return {
         query: {
-          test: import_core3.graphql.field({
-            type: import_core3.graphql.String,
+          test: import_core4.graphql.field({
+            type: import_core4.graphql.String,
             resolve() {
               return "Hello world!";
             }
           })
         },
         mutation: {
-          test: import_core3.graphql.field({
-            type: import_core3.graphql.String,
+          test: import_core4.graphql.field({
+            type: import_core4.graphql.String,
             args: {
-              email: import_core3.graphql.arg({ type: import_core3.graphql.String })
+              email: import_core4.graphql.arg({ type: import_core4.graphql.String })
             },
             async resolve(source, { email }, context) {
               const user = await context.db.User.findOne({
@@ -3047,20 +3096,21 @@ var testDefinition = {
 var modules = [
   testDefinition,
   authDefinition,
-  aiDefinition
+  aiDefinition,
+  healthFormDefinition
 ];
-function injectModules(config4) {
+function injectModules(config3) {
   for (const module2 of modules) {
     for (const schema of module2.schema) {
-      config4.lists = { ...config4.lists, ...schema };
+      config3.lists = { ...config3.lists, ...schema };
     }
   }
   const allExtensions = modules.reduce(
     (acc, module2) => [...acc, ...module2.graphqlExtensions],
     []
   );
-  const existingExtendGraphqlSchema = config4.extendGraphqlSchema;
-  config4.extendGraphqlSchema = (schema) => {
+  const existingExtendGraphqlSchema = config3.extendGraphqlSchema;
+  config3.extendGraphqlSchema = (schema) => {
     let _schema = schema;
     const extensionList = allExtensions;
     if (existingExtendGraphqlSchema) {
@@ -3075,18 +3125,18 @@ function injectModules(config4) {
     (acc, module2) => [...acc, ...module2.restExtensions],
     []
   );
-  if (!config4.server?.extendExpressApp) {
-    config4.server = { ...config4.server, extendExpressApp: () => {
+  if (!config3.server?.extendExpressApp) {
+    config3.server = { ...config3.server, extendExpressApp: () => {
     } };
   }
-  config4.server.extendExpressApp = (app, context) => {
+  config3.server.extendExpressApp = (app, context) => {
     bootstrapExpress(app, context, allRestExtensions);
   };
-  return config4;
+  return config3;
 }
 
 // keystone.ts
-(0, import_zod_to_openapi3.extendZodWithOpenApi)(import_zod5.z);
+(0, import_zod_to_openapi3.extendZodWithOpenApi)(import_zod6.z);
 var MEM_CACHE = class {
   cache = /* @__PURE__ */ new Map();
   async set(key, value) {
@@ -3142,6 +3192,7 @@ var configDef = injectModules({
     }
   }
 });
-var keystoneConfig = (0, import_core4.config)(configDef);
+var keystoneConfig = (0, import_core5.config)(configDef);
+console.log(JSON.stringify(CONFIG, null, 2));
 var keystone_default = withAuth(keystoneConfig);
 //# sourceMappingURL=config.js.map

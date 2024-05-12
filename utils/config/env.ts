@@ -1,9 +1,7 @@
 import * as dotenv from "dotenv";
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
+dotenv.config();
 
-const CONFIG = {
+export const CONFIG = {
   BASE_URL: process.env.BASE_URL || "http://localhost:3000",
   DATABASE_URL: process.env.DATABASE_URL || "",
   GRAPHQL_INSTROSPECTION: process.env.GRAPHQL_INSTROSPECTION || "true",
@@ -19,5 +17,3 @@ const CONFIG = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || "secret",
   HEALTHBOT_ASSISTANT_ID: process.env.HEALTHBOT_ASSISTANT_ID || "assistant-1",
 };
-
-export { CONFIG };

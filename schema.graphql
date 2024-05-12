@@ -235,6 +235,91 @@ input UserRelateToManyForCreateInput {
   connect: [UserWhereUniqueInput!]
 }
 
+type Inquiry {
+  id: ID!
+  fullname: String
+  email: String
+  phone: String
+  policyID: String
+  policyURL: String
+  zip: String
+  address: String
+  sessionID: String
+  addresed: Boolean
+  remarks: String
+}
+
+input InquiryWhereUniqueInput {
+  id: ID
+}
+
+input InquiryWhereInput {
+  AND: [InquiryWhereInput!]
+  OR: [InquiryWhereInput!]
+  NOT: [InquiryWhereInput!]
+  id: IDFilter
+  fullname: StringFilter
+  email: StringFilter
+  phone: StringFilter
+  policyID: StringFilter
+  policyURL: StringFilter
+  zip: StringFilter
+  address: StringFilter
+  sessionID: StringFilter
+  addresed: BooleanFilter
+  remarks: StringFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
+input InquiryOrderByInput {
+  id: OrderDirection
+  fullname: OrderDirection
+  email: OrderDirection
+  phone: OrderDirection
+  policyID: OrderDirection
+  policyURL: OrderDirection
+  zip: OrderDirection
+  address: OrderDirection
+  sessionID: OrderDirection
+  addresed: OrderDirection
+  remarks: OrderDirection
+}
+
+input InquiryUpdateInput {
+  fullname: String
+  email: String
+  phone: String
+  policyID: String
+  policyURL: String
+  zip: String
+  address: String
+  sessionID: String
+  addresed: Boolean
+  remarks: String
+}
+
+input InquiryUpdateArgs {
+  where: InquiryWhereUniqueInput!
+  data: InquiryUpdateInput!
+}
+
+input InquiryCreateInput {
+  fullname: String
+  email: String
+  phone: String
+  policyID: String
+  policyURL: String
+  zip: String
+  address: String
+  sessionID: String
+  addresed: Boolean
+  remarks: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -253,6 +338,12 @@ type Mutation {
   updateGroups(data: [GroupUpdateArgs!]!): [Group]
   deleteGroup(where: GroupWhereUniqueInput!): Group
   deleteGroups(where: [GroupWhereUniqueInput!]!): [Group]
+  createInquiry(data: InquiryCreateInput!): Inquiry
+  createInquiries(data: [InquiryCreateInput!]!): [Inquiry]
+  updateInquiry(where: InquiryWhereUniqueInput!, data: InquiryUpdateInput!): Inquiry
+  updateInquiries(data: [InquiryUpdateArgs!]!): [Inquiry]
+  deleteInquiry(where: InquiryWhereUniqueInput!): Inquiry
+  deleteInquiries(where: [InquiryWhereUniqueInput!]!): [Inquiry]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -297,6 +388,9 @@ type Query {
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   group(where: GroupWhereUniqueInput!): Group
   groupsCount(where: GroupWhereInput! = {}): Int
+  inquiries(where: InquiryWhereInput! = {}, orderBy: [InquiryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InquiryWhereUniqueInput): [Inquiry!]
+  inquiry(where: InquiryWhereUniqueInput!): Inquiry
+  inquiriesCount(where: InquiryWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   test: String

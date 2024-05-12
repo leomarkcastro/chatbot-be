@@ -61,7 +61,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
         async resolve(
           _,
           { [identityField]: identity, [secretField]: secret },
-          context: GlobalContext
+          context: GlobalContext,
         ) {
           if (!context.sessionStrategy) {
             throw new Error("No session implementation available on context");
@@ -80,7 +80,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
               email: identity,
               password: secret,
             },
-            context
+            context,
           );
 
           if (!verifyResult) {
@@ -121,7 +121,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
         async resolve(
           _,
           { email, firstName, lastName, password },
-          context: GlobalContext
+          context: GlobalContext,
         ) {
           // create new
           const user = await context.prisma.user.create({
@@ -145,7 +145,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
                 oldPassword: "",
                 newPassword: password,
               },
-              context
+              context,
             );
             return true;
           } catch (e) {
@@ -175,7 +175,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
                 oldPassword,
                 newPassword,
               },
-              context
+              context,
             );
             return true;
           } catch (e) {

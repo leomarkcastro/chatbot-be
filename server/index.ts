@@ -21,7 +21,7 @@ function convertExpressRouteToOpenApiRoute(route: string) {
 function implementRouteDeclaration(
   mainRouter: Router,
   commonContext: GlobalContext,
-  data: RouteDeclarationList
+  data: RouteDeclarationList,
 ) {
   const router = Router();
 
@@ -31,7 +31,7 @@ function implementRouteDeclaration(
     registry.registerPath({
       method: method as any,
       path: convertExpressRouteToOpenApiRoute(
-        MAIN_API_ROUTE + data.name + route
+        MAIN_API_ROUTE + data.name + route,
       ),
       tags: [data.name],
       security: routeData.accessConfig ? [{ bearerAuth: [] }] : undefined,
@@ -126,7 +126,7 @@ function implementRouteDeclaration(
 export default function bootstrapExpress(
   app: Express,
   commonContext: GlobalContext,
-  extraRouteList: RouteDeclarationList[]
+  extraRouteList: RouteDeclarationList[],
 ) {
   app.use(json());
   app.use(devErrorHandler);

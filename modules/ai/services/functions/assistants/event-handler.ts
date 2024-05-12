@@ -43,7 +43,7 @@ export class EventHandler extends EventEmitter {
         await this.handleRequiresAction(
           event.data,
           event.data.id,
-          event.data.thread_id
+          event.data.thread_id,
         );
       }
 
@@ -98,7 +98,7 @@ export class EventHandler extends EventEmitter {
       const stream = this.client.beta.threads.runs.submitToolOutputsStream(
         threadId,
         runId,
-        { tool_outputs: toolOutputs }
+        { tool_outputs: toolOutputs },
       );
       for await (const event of stream) {
         this.emit("event", event);

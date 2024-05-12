@@ -6,7 +6,7 @@ import { IChangePassword, IUserJwt } from "./UserJWT.dto";
 export async function resetPassword(
   token: string,
   newPassword: string,
-  context: GlobalContext
+  context: GlobalContext,
 ) {
   const decoded = (await jwt_verify(token)) as IUserJwt;
   if (!decoded) return;
@@ -52,7 +52,7 @@ export async function changePassword(
     id: string;
   },
   passwordInput: IChangePassword,
-  context: GlobalContext
+  context: GlobalContext,
 ) {
   const userObj = await context.prisma.user.findUnique({
     where: { id: user.id },

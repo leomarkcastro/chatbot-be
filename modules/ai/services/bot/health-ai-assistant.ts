@@ -1,3 +1,5 @@
+import { KeystoneContext } from "@keystone-6/core/types";
+import { GlobalTypeInfo } from "../../../../common/types";
 import { CONFIG } from "../../../../utils/config/env";
 import { EventHandler, SLEEP } from "../functions/assistants/event-handler";
 import { getHealthAIFunctions } from "../lib/cms-openapi";
@@ -10,12 +12,17 @@ export async function healthAiAssistant(args: {
     _type: "response" | "function_call" | "function_fetch" | "done";
     [key: string]: any;
   }) => void;
+  keystoneArgs: KeystoneContext<GlobalTypeInfo>;
 }) {
   const threadId = args.threadId;
 
   const assistantID = CONFIG.HEALTHBOT_ASSISTANT_ID;
 
-  const fx = await getHealthAIFunctions();
+  const fx = await getHealthAIFunctions({
+    keystone: args.keystoneArgs,
+    metadata: {},
+    sessionID: threadId,
+  });
 
   let system = {
     running: true,
@@ -62,7 +69,7 @@ export async function healthAiAssistant(args: {
     threadId,
     { assistant_id: assistantID },
     // @ts-ignore
-    eventHandler
+    eventHandler,
   );
 
   for await (const event of stream) {

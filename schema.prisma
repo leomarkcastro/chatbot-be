@@ -39,6 +39,20 @@ model Group {
   members User[] @relation("Group_members")
 }
 
+model Inquiry {
+  id        String  @id @default(cuid())
+  fullname  String  @default("")
+  email     String  @default("")
+  phone     String  @default("")
+  policyID  String  @default("")
+  policyURL String  @default("")
+  zip       String  @default("")
+  address   String  @default("")
+  sessionID String  @default("")
+  addresed  Boolean @default(false)
+  remarks   String  @default("")
+}
+
 enum UserRoleType {
   dev
   admin

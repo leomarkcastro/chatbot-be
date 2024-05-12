@@ -57,7 +57,7 @@ authRouteDeclaration.routes.set(
         return;
       }
     },
-  })
+  }),
 );
 
 authRouteDeclaration.routes.set(
@@ -83,7 +83,7 @@ authRouteDeclaration.routes.set(
     func: async ({ inputData, res }) => {
       return inputData;
     },
-  })
+  }),
 );
 
 export { authRouteDeclaration };

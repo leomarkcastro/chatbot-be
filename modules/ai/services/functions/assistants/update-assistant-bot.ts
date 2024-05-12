@@ -118,7 +118,7 @@ async function updateBot() {
         description: string;
         parameters: any;
       };
-    }[]
+    }[],
   );
 
   // Update the assistant

@@ -17,7 +17,7 @@ export async function completionChatStream(args: {
       | { _type: "content"; content: string }
       | { _type: "setfunction" }
       | { _type: "stop" }
-      | { _type: "callfunction"; content: string }
+      | { _type: "callfunction"; content: string },
   ) => any;
   context?: ChatCompletionMessageParam[];
   history?: ChatCompletionMessageParam[];
@@ -53,7 +53,7 @@ export async function completionChatStream(args: {
     (fx) => ({
       type: "function",
       function: fx.definition,
-    })
+    }),
   );
   let context = args.context ?? [];
   const response = await openai.chat.completions.create({
@@ -140,8 +140,8 @@ export async function completionChatStream(args: {
           functionCall,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
 
   // console.log("ACTION", action);
@@ -192,7 +192,7 @@ export async function completionChatStream(args: {
       // }
 
       const fxResult = `${_fx}(${JSON.stringify(_args)})=>${JSON.stringify(
-        result
+        result,
       )?.substring(0, MAX_RESPONSE_LENGTH)}.`;
 
       if (args.verbose) console.log(fxResult);

@@ -5,12 +5,14 @@ import bootstrapExpress from "../server";
 import { aiDefinition } from "./ai";
 import { authDefinition } from "./auth";
 import { ModuleDefinition } from "./definition";
+import { healthFormDefinition } from "./health_forms";
 import { testDefinition } from "./test";
 
 const modules: ModuleDefinition[] = [
   testDefinition,
   authDefinition,
   aiDefinition,
+  healthFormDefinition,
 ];
 
 export function injectModules(config: KeystoneConfig<GlobalTypeInfo>) {
@@ -24,7 +26,7 @@ export function injectModules(config: KeystoneConfig<GlobalTypeInfo>) {
   // inject graphql extensions
   const allExtensions = modules.reduce(
     (acc, module) => [...acc, ...module.graphqlExtensions],
-    [] as ((schema: GraphQLSchema) => GraphQLSchema)[]
+    [] as ((schema: GraphQLSchema) => GraphQLSchema)[],
   );
 
   const existingExtendGraphqlSchema = config.extendGraphqlSchema;
@@ -47,7 +49,7 @@ export function injectModules(config: KeystoneConfig<GlobalTypeInfo>) {
   // inject rest api
   const allRestExtensions = modules.reduce(
     (acc, module) => [...acc, ...module.restExtensions],
-    [] as ModuleDefinition["restExtensions"]
+    [] as ModuleDefinition["restExtensions"],
   );
 
   if (!config.server?.extendExpressApp) {

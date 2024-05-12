@@ -99,7 +99,7 @@ healthRouteDeclaration.routes.set(
         });
       }
     },
-  })
+  }),
 );
 
 export { healthRouteDeclaration };

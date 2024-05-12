@@ -23,7 +23,7 @@ async function createBot() {
         description: string;
         parameters: any;
       };
-    }[]
+    }[],
   );
   const assistant = await openai.beta.assistants.create({
     model: "gpt-4",

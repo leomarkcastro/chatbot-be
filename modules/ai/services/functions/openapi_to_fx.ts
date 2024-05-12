@@ -39,7 +39,7 @@ export interface FunctionObject {
 
 export async function openapiToFunctions(
   openapiSpec: OpenAPISpec,
-  apiFunction: (args: any) => any
+  apiFunction: (args: any) => any,
 ): Promise<FunctionSet> {
   const functions: FunctionSet = {};
 
@@ -74,7 +74,7 @@ export async function openapiToFunctions(
             }
             return acc;
           },
-          {}
+          {},
         );
 
         // @ts-ignore

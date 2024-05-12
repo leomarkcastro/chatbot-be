@@ -62,7 +62,7 @@ export async function completionChat(args: {
     (fx) => ({
       type: "function",
       function: fx.definition,
-    })
+    }),
   );
   let context = args.context ?? [];
   const response = await openai.chat.completions.create({
@@ -130,7 +130,7 @@ export async function completionChat(args: {
 
       const fxResult = `(${_fx})->[${JSON.stringify(result)?.substring(
         0,
-        MAX_RESPONSE_LENGTH
+        MAX_RESPONSE_LENGTH,
       )}]`;
       // console.log(fxResult);
       newHistory = [
