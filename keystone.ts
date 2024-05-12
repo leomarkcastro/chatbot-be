@@ -81,4 +81,6 @@ const configDef = injectModules({
 
 const keystoneConfig = config<GlobalTypeInfo>(configDef);
 
+console.log(JSON.stringify(CONFIG, null, 2));
+
 export default withAuth(keystoneConfig);

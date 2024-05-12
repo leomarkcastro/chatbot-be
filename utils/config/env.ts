@@ -18,6 +18,4 @@ const CONFIG = {
   HEALTHBOT_ASSISTANT_ID: process.env.HEALTHBOT_ASSISTANT_ID || "assistant-1",
 };
 
-console.log(JSON.stringify(CONFIG, null, 2));
-
 export { CONFIG };
