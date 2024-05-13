@@ -168,6 +168,7 @@ export type Inquiry = {
   addresed?: Maybe<Scalars["Boolean"]["output"]>;
   address?: Maybe<Scalars["String"]["output"]>;
   age?: Maybe<Scalars["Float"]["output"]>;
+  aiSelected?: Maybe<Scalars["String"]["output"]>;
   currentLivingSituation?: Maybe<Scalars["String"]["output"]>;
   diseases?: Maybe<Scalars["String"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
