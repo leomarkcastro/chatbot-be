@@ -6,6 +6,7 @@ import {
   fetchFunction,
   openapiToFunctions,
 } from "../functions/openapi_to_fx";
+import { FunctionSet } from "../types/functionSet";
 
 export const cms_openapi: OpenAPISpec = {
   openapi: "3.1.0",
@@ -1639,7 +1640,7 @@ export async function getHealthAIFunctions(apiArgs: {
   keystone: KeystoneContext<GlobalTypeInfo>;
   sessionID: string;
   metadata: any;
-}) {
+}): Promise<FunctionSet> {
   const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
   const custom_functions = {
     applicationSubmit: {

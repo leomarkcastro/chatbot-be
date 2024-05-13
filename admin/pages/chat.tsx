@@ -105,14 +105,34 @@ export default function CustomPage() {
             Session ID: <strong>{sessionID}</strong>
           </p>
           {!chatting && (
-            <>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <input
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
+                style={{ width: "80%", border: "1px solid #ccc" }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    chat();
+                  }
+                }}
               />
-              <button onClick={chat}>Chat</button>
-            </>
+              <button
+                onClick={chat}
+                style={{
+                  width: "20%",
+                }}
+              >
+                Chat
+              </button>
+            </div>
           )}
           <p>
             Answer:{" "}

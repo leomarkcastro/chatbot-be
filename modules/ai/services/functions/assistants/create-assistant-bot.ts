@@ -1,4 +1,4 @@
-import { cms_openapi } from "../../lib/cms-openapi";
+import { cms_openapi } from "../../lib/healthbot-ai";
 import { openai } from "../../lib/openai";
 import { fetchFunction, openapiToFunctions } from "../openapi_to_fx";
 

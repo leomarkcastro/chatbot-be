@@ -70,6 +70,17 @@ export type DateTimeNullableFilter = {
   notIn?: InputMaybe<Array<Scalars["DateTime"]["input"]>>;
 };
 
+export type FloatNullableFilter = {
+  equals?: InputMaybe<Scalars["Float"]["input"]>;
+  gt?: InputMaybe<Scalars["Float"]["input"]>;
+  gte?: InputMaybe<Scalars["Float"]["input"]>;
+  in?: InputMaybe<Array<Scalars["Float"]["input"]>>;
+  lt?: InputMaybe<Scalars["Float"]["input"]>;
+  lte?: InputMaybe<Scalars["Float"]["input"]>;
+  not?: InputMaybe<FloatNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars["Float"]["input"]>>;
+};
+
 export type Group = {
   __typename?: "Group";
   id: Scalars["ID"]["output"];
@@ -156,42 +167,51 @@ export type Inquiry = {
   __typename?: "Inquiry";
   addresed?: Maybe<Scalars["Boolean"]["output"]>;
   address?: Maybe<Scalars["String"]["output"]>;
+  age?: Maybe<Scalars["Float"]["output"]>;
+  currentLivingSituation?: Maybe<Scalars["String"]["output"]>;
+  diseases?: Maybe<Scalars["String"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
-  fullname?: Maybe<Scalars["String"]["output"]>;
+  gender?: Maybe<Scalars["String"]["output"]>;
   id: Scalars["ID"]["output"];
+  medications?: Maybe<Scalars["String"]["output"]>;
+  name?: Maybe<Scalars["String"]["output"]>;
   phone?: Maybe<Scalars["String"]["output"]>;
-  policyID?: Maybe<Scalars["String"]["output"]>;
-  policyURL?: Maybe<Scalars["String"]["output"]>;
+  reasonOfApplication?: Maybe<Scalars["String"]["output"]>;
   remarks?: Maybe<Scalars["String"]["output"]>;
-  sessionID?: Maybe<Scalars["String"]["output"]>;
-  zip?: Maybe<Scalars["String"]["output"]>;
+  yearlyIncome?: Maybe<Scalars["Float"]["output"]>;
 };
 
 export type InquiryCreateInput = {
   addresed?: InputMaybe<Scalars["Boolean"]["input"]>;
   address?: InputMaybe<Scalars["String"]["input"]>;
+  age?: InputMaybe<Scalars["Float"]["input"]>;
+  currentLivingSituation?: InputMaybe<Scalars["String"]["input"]>;
+  diseases?: InputMaybe<Scalars["String"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
-  fullname?: InputMaybe<Scalars["String"]["input"]>;
+  gender?: InputMaybe<Scalars["String"]["input"]>;
+  medications?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
   phone?: InputMaybe<Scalars["String"]["input"]>;
-  policyID?: InputMaybe<Scalars["String"]["input"]>;
-  policyURL?: InputMaybe<Scalars["String"]["input"]>;
+  reasonOfApplication?: InputMaybe<Scalars["String"]["input"]>;
   remarks?: InputMaybe<Scalars["String"]["input"]>;
-  sessionID?: InputMaybe<Scalars["String"]["input"]>;
-  zip?: InputMaybe<Scalars["String"]["input"]>;
+  yearlyIncome?: InputMaybe<Scalars["Float"]["input"]>;
 };
 
 export type InquiryOrderByInput = {
   addresed?: InputMaybe<OrderDirection>;
   address?: InputMaybe<OrderDirection>;
+  age?: InputMaybe<OrderDirection>;
+  currentLivingSituation?: InputMaybe<OrderDirection>;
+  diseases?: InputMaybe<OrderDirection>;
   email?: InputMaybe<OrderDirection>;
-  fullname?: InputMaybe<OrderDirection>;
+  gender?: InputMaybe<OrderDirection>;
   id?: InputMaybe<OrderDirection>;
+  medications?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
   phone?: InputMaybe<OrderDirection>;
-  policyID?: InputMaybe<OrderDirection>;
-  policyURL?: InputMaybe<OrderDirection>;
+  reasonOfApplication?: InputMaybe<OrderDirection>;
   remarks?: InputMaybe<OrderDirection>;
-  sessionID?: InputMaybe<OrderDirection>;
-  zip?: InputMaybe<OrderDirection>;
+  yearlyIncome?: InputMaybe<OrderDirection>;
 };
 
 export type InquiryUpdateArgs = {
@@ -202,14 +222,17 @@ export type InquiryUpdateArgs = {
 export type InquiryUpdateInput = {
   addresed?: InputMaybe<Scalars["Boolean"]["input"]>;
   address?: InputMaybe<Scalars["String"]["input"]>;
+  age?: InputMaybe<Scalars["Float"]["input"]>;
+  currentLivingSituation?: InputMaybe<Scalars["String"]["input"]>;
+  diseases?: InputMaybe<Scalars["String"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
-  fullname?: InputMaybe<Scalars["String"]["input"]>;
+  gender?: InputMaybe<Scalars["String"]["input"]>;
+  medications?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
   phone?: InputMaybe<Scalars["String"]["input"]>;
-  policyID?: InputMaybe<Scalars["String"]["input"]>;
-  policyURL?: InputMaybe<Scalars["String"]["input"]>;
+  reasonOfApplication?: InputMaybe<Scalars["String"]["input"]>;
   remarks?: InputMaybe<Scalars["String"]["input"]>;
-  sessionID?: InputMaybe<Scalars["String"]["input"]>;
-  zip?: InputMaybe<Scalars["String"]["input"]>;
+  yearlyIncome?: InputMaybe<Scalars["Float"]["input"]>;
 };
 
 export type InquiryWhereInput = {
@@ -218,15 +241,18 @@ export type InquiryWhereInput = {
   OR?: InputMaybe<Array<InquiryWhereInput>>;
   addresed?: InputMaybe<BooleanFilter>;
   address?: InputMaybe<StringFilter>;
+  age?: InputMaybe<FloatNullableFilter>;
+  currentLivingSituation?: InputMaybe<StringFilter>;
+  diseases?: InputMaybe<StringFilter>;
   email?: InputMaybe<StringFilter>;
-  fullname?: InputMaybe<StringFilter>;
+  gender?: InputMaybe<StringFilter>;
   id?: InputMaybe<IdFilter>;
+  medications?: InputMaybe<StringFilter>;
+  name?: InputMaybe<StringFilter>;
   phone?: InputMaybe<StringFilter>;
-  policyID?: InputMaybe<StringFilter>;
-  policyURL?: InputMaybe<StringFilter>;
+  reasonOfApplication?: InputMaybe<StringFilter>;
   remarks?: InputMaybe<StringFilter>;
-  sessionID?: InputMaybe<StringFilter>;
-  zip?: InputMaybe<StringFilter>;
+  yearlyIncome?: InputMaybe<FloatNullableFilter>;
 };
 
 export type InquiryWhereUniqueInput = {
@@ -363,12 +389,16 @@ export type Mutation = {
   createInitialUser: UserAuthenticationWithPasswordSuccess;
   createInquiries?: Maybe<Array<Maybe<Inquiry>>>;
   createInquiry?: Maybe<Inquiry>;
+  createPolicies?: Maybe<Array<Maybe<Policy>>>;
+  createPolicy?: Maybe<Policy>;
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
   deleteGroup?: Maybe<Group>;
   deleteGroups?: Maybe<Array<Maybe<Group>>>;
   deleteInquiries?: Maybe<Array<Maybe<Inquiry>>>;
   deleteInquiry?: Maybe<Inquiry>;
+  deletePolicies?: Maybe<Array<Maybe<Policy>>>;
+  deletePolicy?: Maybe<Policy>;
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars["Boolean"]["output"];
@@ -377,6 +407,8 @@ export type Mutation = {
   updateGroups?: Maybe<Array<Maybe<Group>>>;
   updateInquiries?: Maybe<Array<Maybe<Inquiry>>>;
   updateInquiry?: Maybe<Inquiry>;
+  updatePolicies?: Maybe<Array<Maybe<Policy>>>;
+  updatePolicy?: Maybe<Policy>;
   updateUser?: Maybe<User>;
   updateUsers?: Maybe<Array<Maybe<User>>>;
 };
@@ -423,6 +455,14 @@ export type MutationCreateInquiryArgs = {
   data: InquiryCreateInput;
 };
 
+export type MutationCreatePoliciesArgs = {
+  data: Array<PolicyCreateInput>;
+};
+
+export type MutationCreatePolicyArgs = {
+  data: PolicyCreateInput;
+};
+
 export type MutationCreateUserArgs = {
   data: UserCreateInput;
 };
@@ -445,6 +485,14 @@ export type MutationDeleteInquiriesArgs = {
 
 export type MutationDeleteInquiryArgs = {
   where: InquiryWhereUniqueInput;
+};
+
+export type MutationDeletePoliciesArgs = {
+  where: Array<PolicyWhereUniqueInput>;
+};
+
+export type MutationDeletePolicyArgs = {
+  where: PolicyWhereUniqueInput;
 };
 
 export type MutationDeleteUserArgs = {
@@ -475,6 +523,15 @@ export type MutationUpdateInquiriesArgs = {
 export type MutationUpdateInquiryArgs = {
   data: InquiryUpdateInput;
   where: InquiryWhereUniqueInput;
+};
+
+export type MutationUpdatePoliciesArgs = {
+  data: Array<PolicyUpdateArgs>;
+};
+
+export type MutationUpdatePolicyArgs = {
+  data: PolicyUpdateInput;
+  where: PolicyWhereUniqueInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -514,6 +571,52 @@ export type PasswordState = {
   isSet: Scalars["Boolean"]["output"];
 };
 
+export type Policy = {
+  __typename?: "Policy";
+  id: Scalars["ID"]["output"];
+  name?: Maybe<Scalars["String"]["output"]>;
+  policyName?: Maybe<Scalars["String"]["output"]>;
+  policyURL?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type PolicyCreateInput = {
+  name?: InputMaybe<Scalars["String"]["input"]>;
+  policyName?: InputMaybe<Scalars["String"]["input"]>;
+  policyURL?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type PolicyOrderByInput = {
+  id?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
+  policyName?: InputMaybe<OrderDirection>;
+  policyURL?: InputMaybe<OrderDirection>;
+};
+
+export type PolicyUpdateArgs = {
+  data: PolicyUpdateInput;
+  where: PolicyWhereUniqueInput;
+};
+
+export type PolicyUpdateInput = {
+  name?: InputMaybe<Scalars["String"]["input"]>;
+  policyName?: InputMaybe<Scalars["String"]["input"]>;
+  policyURL?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type PolicyWhereInput = {
+  AND?: InputMaybe<Array<PolicyWhereInput>>;
+  NOT?: InputMaybe<Array<PolicyWhereInput>>;
+  OR?: InputMaybe<Array<PolicyWhereInput>>;
+  id?: InputMaybe<IdFilter>;
+  name?: InputMaybe<StringFilter>;
+  policyName?: InputMaybe<StringFilter>;
+  policyURL?: InputMaybe<StringFilter>;
+};
+
+export type PolicyWhereUniqueInput = {
+  id?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
 export type Query = {
   __typename?: "Query";
   authenticatedItem?: Maybe<AuthenticatedItem>;
@@ -524,6 +627,9 @@ export type Query = {
   inquiriesCount?: Maybe<Scalars["Int"]["output"]>;
   inquiry?: Maybe<Inquiry>;
   keystone: KeystoneMeta;
+  policies?: Maybe<Array<Policy>>;
+  policiesCount?: Maybe<Scalars["Int"]["output"]>;
+  policy?: Maybe<Policy>;
   test?: Maybe<Scalars["String"]["output"]>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
@@ -560,6 +666,22 @@ export type QueryInquiriesCountArgs = {
 
 export type QueryInquiryArgs = {
   where: InquiryWhereUniqueInput;
+};
+
+export type QueryPoliciesArgs = {
+  cursor?: InputMaybe<PolicyWhereUniqueInput>;
+  orderBy?: Array<PolicyOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PolicyWhereInput;
+};
+
+export type QueryPoliciesCountArgs = {
+  where?: PolicyWhereInput;
+};
+
+export type QueryPolicyArgs = {
+  where: PolicyWhereUniqueInput;
 };
 
 export type QueryUserArgs = {

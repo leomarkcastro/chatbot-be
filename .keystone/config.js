@@ -425,8 +425,11 @@ var EventHandler = class extends import_stream.EventEmitter {
   }
 };
 
-// modules/ai/services/lib/cms-openapi.ts
-var import_zod3 = require("zod");
+// modules/ai/services/lib/openai.ts
+var import_openai = __toESM(require("openai"));
+var openai = new import_openai.default({
+  apiKey: CONFIG.OPENAI_API_KEY
+});
 
 // modules/ai/services/functions/openapi_to_fx.ts
 var import_json_schema_ref_parser = __toESM(require("@apidevtools/json-schema-ref-parser"));
@@ -532,7 +535,8 @@ async function fetchFunction(args) {
   }
 }
 
-// modules/ai/services/lib/cms-openapi.ts
+// modules/ai/services/lib/healthbot-ai.ts
+var import_zod3 = require("zod");
 var cms_openapi = {
   openapi: "3.1.0",
   info: {
@@ -2131,115 +2135,201 @@ var cms_openapi = {
     schemas: {}
   }
 };
-async function getHealthAIFunctions(apiArgs) {
-  const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
-  const custom_functions = {
-    applicationSubmit: {
+
+// modules/ai/services/lib/surveyFunction.ts
+async function surveyCreator(args) {
+  return {
+    [args.name]: {
       definition: {
-        name: "applicationSubmit",
-        description: "If the 'user' is ready to apply, call this function. Initially, the fields are empty, do not pre-fill the information here. Do NOT allow vague values, always ask for specific value. This function will return a message to open the permission link.",
+        name: args.name,
+        description: `${args.description}. Do not prefill information unless a default value is provided or the user explicitly provided the information. The function will return { success: false, message: string } if the user did not provide the required information or if the information provided is invalid. Otherwise, the function will return { success: true, message: any }. Do not submit an incomplete survey. On submit, strictly format the date as provided in the description.`,
         parameters: {
           type: "object",
           properties: {
-            fullname: {
-              type: "string",
-              description: "The full name of the user. Provide first name and last name.",
-              defaultValue: ""
-            },
-            email: {
-              type: "string",
-              description: "The email of the user. Provide a valid email address.",
-              defaultValue: ""
-            },
-            phone: {
-              type: "string",
-              description: "The phone number of the user. Provide a valid phone number.",
-              defaultValue: ""
-            },
-            policyID: {
-              type: "string",
-              description: "The policy that the user wants to claim. Refer to the conversation history for the policy details. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details."
-            },
-            policyURL: {
-              type: "string",
-              description: "The URL of the policy that the user wants to claim. Provide a valid URL. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details.",
-              defaultValue: ""
-            },
-            location: {
-              type: "object",
-              properties: {
-                zip: {
-                  type: "string",
-                  description: "The ZIP code of the user. Provide a valid ZIP code.",
-                  defaultValue: ""
-                },
-                county: {
-                  type: "string",
-                  description: "The county of the user. Provide a valid county name.",
-                  defaultValue: ""
+            ...args.fields.reduce(
+              (acc, field) => {
+                acc[field.name] = { type: field.type };
+                if (field.options) {
+                  acc[field.name].enum = field.options;
                 }
-              }
-            }
+                if (field.default) {
+                  acc[field.name].defaultValue = field.default;
+                }
+                return acc;
+              },
+              {}
+            )
           },
-          required: [
-            "fullname",
-            "email",
-            "phone",
-            "policyID",
-            "policyURL",
-            "location"
-          ]
+          required: args.fields.map((field) => field.name)
         }
       },
-      function: async (args) => {
-        const zodObj = import_zod3.z.object({
-          fullname: import_zod3.z.string(),
-          email: import_zod3.z.string().email(),
-          phone: import_zod3.z.string(),
-          policyID: import_zod3.z.string(),
-          policyURL: import_zod3.z.string().url(),
-          location: import_zod3.z.object({
-            zip: import_zod3.z.string(),
-            county: import_zod3.z.string()
-          })
-        });
-        try {
-          zodObj.parse(args);
-          await apiArgs.keystone.prisma.inquiry.create({
-            data: {
-              fullname: args.fullname,
-              email: args.email,
-              phone: args.phone,
-              policyID: args.policyID,
-              policyURL: args.policyURL,
-              zip: args.location.zip,
-              address: args.location.county
+      function: async (_args) => {
+        console.log(JSON.stringify(_args, null, 2));
+        let errorMessages = "";
+        for (const field of args.fields) {
+          if (!_args[field.name]) {
+            errorMessages += `${field.errorMessages?.required || `${field.name} is required.`}
+`;
+          }
+          switch (field.type) {
+            case "string": {
+              if (field.options && !field.options.includes(_args[field.name])) {
+                errorMessages += field.errorMessages?.invalid || `${field.name} is invalid.
+`;
+              }
+              break;
             }
-          });
-          return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
-        } catch (e) {
-          const zodError = e?.errors?.[0]?.message || "Invalid input";
-          console.log(e);
-          return zodError;
+            case "number": {
+              if (isNaN(_args[field.name])) {
+                errorMessages += field.errorMessages?.invalid || `${field.name} is invalid.
+`;
+              }
+              break;
+            }
+          }
         }
+        if (errorMessages) {
+          console.log({
+            success: false,
+            message: errorMessages
+          });
+          return {
+            success: false,
+            message: errorMessages
+          };
+        }
+        const data = await args.toSubmitFunction(_args);
+        return { success: true, data };
       }
     }
   };
-  const functions = { ...cms_functions, ...custom_functions };
+}
+
+// modules/ai/services/lib/survey-ai.ts
+async function getSurveyAIFunctions(apiArgs) {
+  const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
+  const functions = {
+    ...cms_functions,
+    ...await surveyCreator({
+      name: "submitApplication",
+      description: "Submit an application or inquiry for health insurance. Only ask 3 questions at a time to keep the user engaged. The user's answers could fill-out different fields if applicable. Example: I have a chronic disease and need insurance. Always ask the reason of application first, then  diseases, and then medications.",
+      fields: [
+        {
+          name: "reasonOfApplication",
+          description: "Ask the user for their reason of application. This could contain their disease, current medication, long term goals, current doctor, hospital, recommendation. Feel free to use the information here on other forms if applicable. Example: I have a chronic disease and need insurance.",
+          type: "string"
+        },
+        {
+          name: "diseases",
+          description: "The user's current diseases or disabilities. This could be a list of diseases or disabilities. Example: diabetes, high blood pressure.",
+          type: "string"
+        },
+        {
+          name: "medications",
+          description: "The user's current medications. This could be a list of medications. Example: insulin, metformin.",
+          type: "string"
+        },
+        {
+          name: "currentLivingSituation",
+          description: "Ask for the user's current living situation. This could be their current living situation, such as living alone, with family, or in a nursing home, salary, current address, location. Example: I live with my family in Springfield, IL.",
+          type: "string"
+        },
+        {
+          name: "name",
+          description: "The name of the applicant. This includes first and last name, suffixes, and prefixes. Example: John Doe Jr.",
+          type: "string"
+        },
+        {
+          name: "email",
+          description: "The email of the applicant. Example: user@email.com",
+          type: "string"
+        },
+        {
+          name: "phone",
+          description: "The phone number of the applicant. Example: 555-555-5555.",
+          type: "string"
+        },
+        {
+          name: "age",
+          description: "The age of the applicant. This is a number, and is used to determine eligibility for certain programs. Example: 25.",
+          type: "number"
+        },
+        {
+          name: "yearlyIncome",
+          description: "The yearly income of the applicant. This is a number, and is used to determine eligibility for certain programs. Example: 25000.",
+          type: "number"
+        },
+        {
+          name: "gender",
+          description: "The gender of the applicant. Example: male",
+          type: "string",
+          options: ["male", "female", "transgender", "other"]
+        },
+        {
+          name: "address",
+          description: "The address of the applicant. Included are street, city, state, and zip code, and isPermanent. Example: 123 Main St, Springfield, IL 62701 (isPermanent: true).",
+          type: "string"
+        }
+      ],
+      toSubmitFunction: async (args) => {
+        await apiArgs?.keystone.prisma.inquiry.create({
+          data: {
+            reasonOfApplication: args.reasonOfApplication,
+            diseases: args.diseases,
+            medications: args.medications,
+            currentLivingSituation: args.currentLivingSituation,
+            name: args.name,
+            email: args.email,
+            phone: args.phone,
+            age: args.age,
+            yearlyIncome: args.yearlyIncome,
+            gender: args.gender,
+            address: args.address
+          }
+        });
+        return { success: true, message: "Application submitted." };
+      }
+    }),
+    ...await surveyCreator({
+      name: "submitSuggestion",
+      description: "After the user had succesfully sent a form AND if the user has prompted that they like a policy offered, you can use this function to submit the selected policy of the user.",
+      fields: [
+        {
+          name: "name",
+          description: "The name of the applicant. This includes first and last name, suffixes, and prefixes. Example: John Doe Jr.",
+          type: "string"
+        },
+        {
+          name: "policyName",
+          description: "The name of the policy that the user wants to claim. Refer to the conversation history for the policy details. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details.",
+          type: "string"
+        },
+        {
+          name: "policyURL",
+          description: "The URL of the policy that the user wants to claim. Provide a valid URL. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details.",
+          type: "string"
+        }
+      ],
+      toSubmitFunction: async (args) => {
+        await apiArgs?.keystone.prisma.policy.create({
+          data: {
+            name: args.name,
+            policyName: args.policyName,
+            policyURL: args.policyURL
+          }
+        });
+        return { success: true, message: "Recommended policy submitted." };
+      }
+    })
+  };
   return functions;
 }
 
-// modules/ai/services/lib/openai.ts
-var import_openai = __toESM(require("openai"));
-var openai = new import_openai.default({
-  apiKey: CONFIG.OPENAI_API_KEY
-});
-
-// modules/ai/services/bot/health-ai-assistant.ts
-async function healthAiAssistant(args) {
+// modules/ai/services/bot/survey-ai-assistant.ts
+async function surveyAiAssistant(args) {
   const threadId = args.threadId;
   const assistantID = CONFIG.HEALTHBOT_ASSISTANT_ID;
-  const fx = await getHealthAIFunctions({
+  const fx = await getSurveyAIFunctions({
     keystone: args.keystoneArgs,
     metadata: {},
     sessionID: threadId
@@ -2336,7 +2426,7 @@ aiRouteDeclaration.routes.set(
       res,
       context
     }) => {
-      await healthAiAssistant({
+      await surveyAiAssistant({
         threadId: sessionID,
         query: prompt,
         eventHandler: (data) => {
@@ -3028,14 +3118,17 @@ var healthFormDefinition = {
     {
       Inquiry: (0, import_core3.list)({
         fields: {
-          fullname: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          email: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          phone: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          policyID: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          policyURL: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          zip: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          address: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          sessionID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          reasonOfApplication: (0, import_fields2.text)(),
+          diseases: (0, import_fields2.text)(),
+          medications: (0, import_fields2.text)(),
+          currentLivingSituation: (0, import_fields2.text)(),
+          name: (0, import_fields2.text)(),
+          email: (0, import_fields2.text)(),
+          phone: (0, import_fields2.text)(),
+          age: (0, import_fields2.float)(),
+          yearlyIncome: (0, import_fields2.float)(),
+          gender: (0, import_fields2.text)(),
+          address: (0, import_fields2.text)(),
           addresed: (0, import_fields2.checkbox)(),
           remarks: (0, import_fields2.text)()
         },
@@ -3045,6 +3138,21 @@ var healthFormDefinition = {
             all: allow
           },
           filter: {
+            all: allow
+          }
+        })
+      }),
+      Policy: (0, import_core3.list)({
+        fields: {
+          name: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          policyName: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          policyURL: (0, import_fields2.text)({ validation: { isRequired: true } })
+        },
+        access: accessConfig({
+          filter: {
+            all: allow
+          },
+          operations: {
             all: allow
           }
         })

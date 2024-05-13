@@ -237,14 +237,17 @@ input UserRelateToManyForCreateInput {
 
 type Inquiry {
   id: ID!
-  fullname: String
+  reasonOfApplication: String
+  diseases: String
+  medications: String
+  currentLivingSituation: String
+  name: String
   email: String
   phone: String
-  policyID: String
-  policyURL: String
-  zip: String
+  age: Float
+  yearlyIncome: Float
+  gender: String
   address: String
-  sessionID: String
   addresed: Boolean
   remarks: String
 }
@@ -258,16 +261,30 @@ input InquiryWhereInput {
   OR: [InquiryWhereInput!]
   NOT: [InquiryWhereInput!]
   id: IDFilter
-  fullname: StringFilter
+  reasonOfApplication: StringFilter
+  diseases: StringFilter
+  medications: StringFilter
+  currentLivingSituation: StringFilter
+  name: StringFilter
   email: StringFilter
   phone: StringFilter
-  policyID: StringFilter
-  policyURL: StringFilter
-  zip: StringFilter
+  age: FloatNullableFilter
+  yearlyIncome: FloatNullableFilter
+  gender: StringFilter
   address: StringFilter
-  sessionID: StringFilter
   addresed: BooleanFilter
   remarks: StringFilter
+}
+
+input FloatNullableFilter {
+  equals: Float
+  in: [Float!]
+  notIn: [Float!]
+  lt: Float
+  lte: Float
+  gt: Float
+  gte: Float
+  not: FloatNullableFilter
 }
 
 input BooleanFilter {
@@ -277,27 +294,33 @@ input BooleanFilter {
 
 input InquiryOrderByInput {
   id: OrderDirection
-  fullname: OrderDirection
+  reasonOfApplication: OrderDirection
+  diseases: OrderDirection
+  medications: OrderDirection
+  currentLivingSituation: OrderDirection
+  name: OrderDirection
   email: OrderDirection
   phone: OrderDirection
-  policyID: OrderDirection
-  policyURL: OrderDirection
-  zip: OrderDirection
+  age: OrderDirection
+  yearlyIncome: OrderDirection
+  gender: OrderDirection
   address: OrderDirection
-  sessionID: OrderDirection
   addresed: OrderDirection
   remarks: OrderDirection
 }
 
 input InquiryUpdateInput {
-  fullname: String
+  reasonOfApplication: String
+  diseases: String
+  medications: String
+  currentLivingSituation: String
+  name: String
   email: String
   phone: String
-  policyID: String
-  policyURL: String
-  zip: String
+  age: Float
+  yearlyIncome: Float
+  gender: String
   address: String
-  sessionID: String
   addresed: Boolean
   remarks: String
 }
@@ -308,16 +331,64 @@ input InquiryUpdateArgs {
 }
 
 input InquiryCreateInput {
-  fullname: String
+  reasonOfApplication: String
+  diseases: String
+  medications: String
+  currentLivingSituation: String
+  name: String
   email: String
   phone: String
-  policyID: String
-  policyURL: String
-  zip: String
+  age: Float
+  yearlyIncome: Float
+  gender: String
   address: String
-  sessionID: String
   addresed: Boolean
   remarks: String
+}
+
+type Policy {
+  id: ID!
+  name: String
+  policyName: String
+  policyURL: String
+}
+
+input PolicyWhereUniqueInput {
+  id: ID
+}
+
+input PolicyWhereInput {
+  AND: [PolicyWhereInput!]
+  OR: [PolicyWhereInput!]
+  NOT: [PolicyWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  policyName: StringFilter
+  policyURL: StringFilter
+}
+
+input PolicyOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  policyName: OrderDirection
+  policyURL: OrderDirection
+}
+
+input PolicyUpdateInput {
+  name: String
+  policyName: String
+  policyURL: String
+}
+
+input PolicyUpdateArgs {
+  where: PolicyWhereUniqueInput!
+  data: PolicyUpdateInput!
+}
+
+input PolicyCreateInput {
+  name: String
+  policyName: String
+  policyURL: String
 }
 
 """
@@ -344,6 +415,12 @@ type Mutation {
   updateInquiries(data: [InquiryUpdateArgs!]!): [Inquiry]
   deleteInquiry(where: InquiryWhereUniqueInput!): Inquiry
   deleteInquiries(where: [InquiryWhereUniqueInput!]!): [Inquiry]
+  createPolicy(data: PolicyCreateInput!): Policy
+  createPolicies(data: [PolicyCreateInput!]!): [Policy]
+  updatePolicy(where: PolicyWhereUniqueInput!, data: PolicyUpdateInput!): Policy
+  updatePolicies(data: [PolicyUpdateArgs!]!): [Policy]
+  deletePolicy(where: PolicyWhereUniqueInput!): Policy
+  deletePolicies(where: [PolicyWhereUniqueInput!]!): [Policy]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -391,6 +468,9 @@ type Query {
   inquiries(where: InquiryWhereInput! = {}, orderBy: [InquiryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InquiryWhereUniqueInput): [Inquiry!]
   inquiry(where: InquiryWhereUniqueInput!): Inquiry
   inquiriesCount(where: InquiryWhereInput! = {}): Int
+  policies(where: PolicyWhereInput! = {}, orderBy: [PolicyOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PolicyWhereUniqueInput): [Policy!]
+  policy(where: PolicyWhereUniqueInput!): Policy
+  policiesCount(where: PolicyWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   test: String

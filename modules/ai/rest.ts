@@ -6,7 +6,7 @@ import {
   RouteDeclarationMetadata,
   RouteMethod,
 } from "../../server/declarations";
-import { healthAiAssistant } from "./services/bot/health-ai-assistant";
+import { surveyAiAssistant } from "./services/bot/survey-ai-assistant";
 import { createThread } from "./services/functions/threads";
 
 const aiRouteDeclaration: RouteDeclarationList = {
@@ -47,7 +47,7 @@ aiRouteDeclaration.routes.set(
       res,
       context,
     }) => {
-      await healthAiAssistant({
+      await surveyAiAssistant({
         threadId: sessionID,
         query: prompt,
         eventHandler: (data) => {

@@ -40,17 +40,27 @@ model Group {
 }
 
 model Inquiry {
-  id        String  @id @default(cuid())
-  fullname  String  @default("")
-  email     String  @default("")
-  phone     String  @default("")
-  policyID  String  @default("")
-  policyURL String  @default("")
-  zip       String  @default("")
-  address   String  @default("")
-  sessionID String  @default("")
-  addresed  Boolean @default(false)
-  remarks   String  @default("")
+  id                     String  @id @default(cuid())
+  reasonOfApplication    String  @default("")
+  diseases               String  @default("")
+  medications            String  @default("")
+  currentLivingSituation String  @default("")
+  name                   String  @default("")
+  email                  String  @default("")
+  phone                  String  @default("")
+  age                    Float?
+  yearlyIncome           Float?
+  gender                 String  @default("")
+  address                String  @default("")
+  addresed               Boolean @default(false)
+  remarks                String  @default("")
+}
+
+model Policy {
+  id         String @id @default(cuid())
+  name       String @default("")
+  policyName String @default("")
+  policyURL  String @default("")
 }
 
 enum UserRoleType {

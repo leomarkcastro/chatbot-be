@@ -1,104 +1,9 @@
 import { CONFIG } from "../../../../../utils/config/env";
-import { cms_openapi } from "../../lib/cms-openapi";
 import { openai } from "../../lib/openai";
-import { fetchFunction, openapiToFunctions } from "../openapi_to_fx";
+import { getSurveyAIFunctions } from "../../lib/survey-ai";
 
 async function updateBot() {
-  // Setup the functions
-  const cms_functions = await openapiToFunctions(cms_openapi, fetchFunction);
-  const custom_functions = {
-    applicationSubmit: {
-      definition: {
-        name: "applicationSubmit",
-        description:
-          "If the 'user' is ready to apply, call this function. Initially, the fields are empty, do not pre-fill the information here. Do NOT allow vague values, always ask for specific value. This function will return a message to open the permission link.",
-        parameters: {
-          type: "object",
-          properties: {
-            fullname: {
-              type: "string",
-              description:
-                "The full name of the user. Provide first name and last name. ONLY USE VALUES FROM THE USER. DO NOT PRE-FILL.",
-              defaultValue: "",
-            },
-            email: {
-              type: "string",
-              description:
-                "The email of the user. Provide a valid email address. ONLY USE VALUES FROM THE USER. DO NOT PRE-FILL.",
-              defaultValue: "",
-            },
-            phone: {
-              type: "string",
-              description:
-                "The phone number of the user. Provide a valid phone number. ONLY USE VALUES FROM THE USER. DO NOT PRE-FILL.",
-              defaultValue: "",
-            },
-            policyID: {
-              type: "string",
-              description:
-                "The policy that the user wants to claim. Refer to the conversation history for the policy details. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details.",
-            },
-            policyURL: {
-              type: "string",
-              description:
-                "The URL of the policy that the user wants to claim. Provide a valid URL. Make sure you had used the 'SearchHealthcarePlans' function to get the policy details.",
-              defaultValue: "",
-            },
-            location: {
-              type: "object",
-              properties: {
-                zip: {
-                  type: "string",
-                  description:
-                    "The ZIP code of the user. Provide a valid ZIP code.",
-                  defaultValue: "",
-                },
-                county: {
-                  type: "string",
-                  description:
-                    "The county of the user. Provide a valid county name.",
-                  defaultValue: "",
-                },
-              },
-            },
-          },
-          required: [
-            "fullname",
-            "email",
-            "phone",
-            "policyID",
-            "policyURL",
-            "location",
-          ],
-        },
-      },
-      function: (args: any) => {
-        console.log(JSON.stringify(args, null, 2));
-        console.log("Attempting to submit application...");
-        if (!args.fullname) {
-          return "Please provide your full name.";
-        }
-        if (!args.email) {
-          return "Please provide your email.";
-        }
-        if (!args.phone) {
-          return "Please provide your phone number.";
-        }
-        if (!args.policyURL || !args.policyID) {
-          return "Please also get the policyID and policyURL from the conversation history.";
-        }
-        if (!args.location.zip) {
-          return "Please provide your ZIP code.";
-        }
-        if (!args.location.county) {
-          return "Please provide your county.";
-        }
-        console.log("Application submitted successfully.");
-        return "https://www.healthsherpa.com/?_agent_id=myacaexpress";
-      },
-    },
-  };
-  const functions = { ...cms_functions, ...custom_functions };
+  const functions = await getSurveyAIFunctions();
   const functionmap = Object.values(functions).reduce(
     (acc, fx) => {
       acc.push({
@@ -125,9 +30,9 @@ async function updateBot() {
   const assistantID = CONFIG.HEALTHBOT_ASSISTANT_ID;
   const assistant = await openai.beta.assistants.update(assistantID, {
     model: "gpt-4",
-    name: "ACA Health Insurance Marketplace Assistant",
+    name: "Health Insurance Agent Assistant",
     instructions:
-      "The GPT will assist users in navigating the ACA Health insurance marketplace in the United States by utilizing CMS Marketplace API endpoints. It will guide users through searching for health insurance plans, getting county details by ZIP code, retrieving specific plan details, autocomplete for drug names, checking drug coverage by plan, and getting eligibility estimates for households. This GPT will assist you from the CMS Marketplace database. Use vector store for code-interpeter for api specification.",
+      "The GPT will assist users in helping Users find the best insurance policy for them. As for your goal, your task is to ask the user for informations that would help our agent to recommend them the best insurance policy that is applicable for them. You can use functions to get medications, get drug names, eligibility plan and so on to gather information. At the end, you should be able to collect information that you can submit to the agent. Your first task before anything else is to ask for user's information, primarily the reason of their application, diseases and medication. Do not search for plans yet not until the user submitted an applicaiton first. If the user submitted the application, you can now search for plans automatically and suggest a policy from the functions you have.",
     tools: functionmap,
   });
 

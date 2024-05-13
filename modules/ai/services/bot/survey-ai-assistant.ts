@@ -2,10 +2,10 @@ import { KeystoneContext } from "@keystone-6/core/types";
 import { GlobalTypeInfo } from "../../../../common/types";
 import { CONFIG } from "../../../../utils/config/env";
 import { EventHandler, SLEEP } from "../functions/assistants/event-handler";
-import { getHealthAIFunctions } from "../lib/healthbot-ai";
 import { openai } from "../lib/openai";
+import { getSurveyAIFunctions } from "../lib/survey-ai";
 
-export async function healthAiAssistant(args: {
+export async function surveyAiAssistant(args: {
   threadId: string;
   query: string;
   eventHandler: (data: {
@@ -18,7 +18,7 @@ export async function healthAiAssistant(args: {
 
   const assistantID = CONFIG.HEALTHBOT_ASSISTANT_ID;
 
-  const fx = await getHealthAIFunctions({
+  const fx = await getSurveyAIFunctions({
     keystone: args.keystoneArgs,
     metadata: {},
     sessionID: threadId,
