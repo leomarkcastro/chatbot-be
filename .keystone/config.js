@@ -2280,24 +2280,27 @@ async function getSurveyAIFunctions(apiArgs) {
         if (Object.values(args).some((v) => v === "unspecified")) {
           return {
             success: false,
-            message: "Some values are unspecified, clarify first the values"
+            message: "Some values are unspecified, clarify first the values. If the user does not provide the information, use 'none'."
           };
         }
-        await apiArgs?.keystone.prisma.inquiry.create({
-          data: {
-            reasonOfApplication: args.reasonOfApplication,
-            diseases: args.diseases,
-            medications: args.medications,
-            currentLivingSituation: args.currentLivingSituation,
-            name: args.name,
-            email: args.email,
-            phone: args.phone,
-            age: args.age,
-            yearlyIncome: args.yearlyIncome,
-            gender: args.gender,
-            address: args.address
-          }
-        });
+        if (apiArgs?.sessionID) {
+          await apiArgs?.keystone.prisma.inquiry.create({
+            data: {
+              sessionID: apiArgs.sessionID,
+              reasonOfApplication: args.reasonOfApplication,
+              diseases: args.diseases,
+              medications: args.medications,
+              currentLivingSituation: args.currentLivingSituation,
+              name: args.name,
+              email: args.email,
+              phone: args.phone,
+              age: args.age,
+              yearlyIncome: args.yearlyIncome,
+              gender: args.gender,
+              address: args.address
+            }
+          });
+        }
         return { success: true, message: "Application submitted." };
       }
     }),
@@ -2328,13 +2331,16 @@ async function getSurveyAIFunctions(apiArgs) {
             message: "Some values are unspecified, clarify first the values"
           };
         }
-        await apiArgs?.keystone.prisma.policy.create({
-          data: {
-            name: args.name,
-            policyName: args.policyName,
-            policyURL: args.policyURL
-          }
-        });
+        if (apiArgs?.sessionID) {
+          await apiArgs?.keystone.prisma.policy.create({
+            data: {
+              sessionID: apiArgs.sessionID,
+              name: args.name,
+              policyName: args.policyName,
+              policyURL: args.policyURL
+            }
+          });
+        }
         return { success: true, message: "Recommended policy submitted." };
       }
     })
@@ -2404,6 +2410,10 @@ async function surveyAiAssistant(args) {
 async function createThread() {
   const thread = await openai.beta.threads.create();
   return thread;
+}
+async function listMessages(threadId) {
+  const messages = await openai.beta.threads.messages.list(threadId);
+  return messages;
 }
 
 // modules/ai/rest.ts
@@ -2691,98 +2701,7 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
 var import_zod5 = require("zod");
 
 // graphql/operations.ts
-var LoginDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "Login" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "email" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "password" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        }
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "authenticateUserWithPassword" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "email" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "email" }
-                }
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "adminPassword" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "password" }
-                }
-              }
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "InlineFragment",
-                  typeCondition: {
-                    kind: "NamedType",
-                    name: {
-                      kind: "Name",
-                      value: "UserAuthenticationWithPasswordSuccess"
-                    }
-                  },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sessionToken" }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  ]
-};
+var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
 
 // server/services/access/serverAccessConfig.ts
 var serverAccessConfig = (generatorArgs) => {
@@ -3237,13 +3156,25 @@ var healthFormDefinition = {
           yearlyIncome: (0, import_fields2.float)(),
           gender: (0, import_fields2.text)(),
           address: (0, import_fields2.text)(),
+          sessionID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          session: (0, import_fields2.virtual)({
+            field: import_core3.graphql.field({
+              type: import_core3.graphql.String,
+              async resolve(item) {
+                const messages = await listMessages(item.sessionID);
+                if (messages) {
+                  return JSON.stringify(messages);
+                }
+              }
+            })
+          }),
           aiSelected: (0, import_fields2.virtual)({
             field: import_core3.graphql.field({
               type: import_core3.graphql.String,
               async resolve(item, args, context) {
                 const policy = await context.prisma.policy.findFirst({
                   where: {
-                    name: item.name
+                    sessionID: item.sessionID
                   }
                 });
                 if (policy) {
@@ -3267,9 +3198,10 @@ var healthFormDefinition = {
       }),
       Policy: (0, import_core3.list)({
         fields: {
-          name: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          policyName: (0, import_fields2.text)({ validation: { isRequired: true } }),
-          policyURL: (0, import_fields2.text)({ validation: { isRequired: true } })
+          sessionID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          name: (0, import_fields2.text)(),
+          policyName: (0, import_fields2.text)(),
+          policyURL: (0, import_fields2.text)()
         },
         access: accessConfig({
           filter: {

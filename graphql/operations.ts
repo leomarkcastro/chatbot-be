@@ -179,6 +179,8 @@ export type Inquiry = {
   phone?: Maybe<Scalars["String"]["output"]>;
   reasonOfApplication?: Maybe<Scalars["String"]["output"]>;
   remarks?: Maybe<Scalars["String"]["output"]>;
+  session?: Maybe<Scalars["String"]["output"]>;
+  sessionID?: Maybe<Scalars["String"]["output"]>;
   yearlyIncome?: Maybe<Scalars["Float"]["output"]>;
 };
 
@@ -195,6 +197,7 @@ export type InquiryCreateInput = {
   phone?: InputMaybe<Scalars["String"]["input"]>;
   reasonOfApplication?: InputMaybe<Scalars["String"]["input"]>;
   remarks?: InputMaybe<Scalars["String"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
   yearlyIncome?: InputMaybe<Scalars["Float"]["input"]>;
 };
 
@@ -212,6 +215,7 @@ export type InquiryOrderByInput = {
   phone?: InputMaybe<OrderDirection>;
   reasonOfApplication?: InputMaybe<OrderDirection>;
   remarks?: InputMaybe<OrderDirection>;
+  sessionID?: InputMaybe<OrderDirection>;
   yearlyIncome?: InputMaybe<OrderDirection>;
 };
 
@@ -233,6 +237,7 @@ export type InquiryUpdateInput = {
   phone?: InputMaybe<Scalars["String"]["input"]>;
   reasonOfApplication?: InputMaybe<Scalars["String"]["input"]>;
   remarks?: InputMaybe<Scalars["String"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
   yearlyIncome?: InputMaybe<Scalars["Float"]["input"]>;
 };
 
@@ -253,6 +258,7 @@ export type InquiryWhereInput = {
   phone?: InputMaybe<StringFilter>;
   reasonOfApplication?: InputMaybe<StringFilter>;
   remarks?: InputMaybe<StringFilter>;
+  sessionID?: InputMaybe<StringFilter>;
   yearlyIncome?: InputMaybe<FloatNullableFilter>;
 };
 
@@ -578,12 +584,14 @@ export type Policy = {
   name?: Maybe<Scalars["String"]["output"]>;
   policyName?: Maybe<Scalars["String"]["output"]>;
   policyURL?: Maybe<Scalars["String"]["output"]>;
+  sessionID?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type PolicyCreateInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
   policyName?: InputMaybe<Scalars["String"]["input"]>;
   policyURL?: InputMaybe<Scalars["String"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type PolicyOrderByInput = {
@@ -591,6 +599,7 @@ export type PolicyOrderByInput = {
   name?: InputMaybe<OrderDirection>;
   policyName?: InputMaybe<OrderDirection>;
   policyURL?: InputMaybe<OrderDirection>;
+  sessionID?: InputMaybe<OrderDirection>;
 };
 
 export type PolicyUpdateArgs = {
@@ -602,6 +611,7 @@ export type PolicyUpdateInput = {
   name?: InputMaybe<Scalars["String"]["input"]>;
   policyName?: InputMaybe<Scalars["String"]["input"]>;
   policyURL?: InputMaybe<Scalars["String"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type PolicyWhereInput = {
@@ -612,6 +622,7 @@ export type PolicyWhereInput = {
   name?: InputMaybe<StringFilter>;
   policyName?: InputMaybe<StringFilter>;
   policyURL?: InputMaybe<StringFilter>;
+  sessionID?: InputMaybe<StringFilter>;
 };
 
 export type PolicyWhereUniqueInput = {

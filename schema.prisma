@@ -52,12 +52,14 @@ model Inquiry {
   yearlyIncome           Float?
   gender                 String  @default("")
   address                String  @default("")
+  sessionID              String  @default("")
   addresed               Boolean @default(false)
   remarks                String  @default("")
 }
 
 model Policy {
   id         String @id @default(cuid())
+  sessionID  String @default("")
   name       String @default("")
   policyName String @default("")
   policyURL  String @default("")

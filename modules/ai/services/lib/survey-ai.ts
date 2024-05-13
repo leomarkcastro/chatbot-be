@@ -89,25 +89,30 @@ export async function getSurveyAIFunctions(apiArgs?: {
         if (Object.values(args).some((v) => v === "unspecified")) {
           return {
             success: false,
-            message: "Some values are unspecified, clarify first the values",
+            message:
+              "Some values are unspecified, clarify first the values. If the user does not provide the information, use 'none'.",
           };
         }
 
-        await apiArgs?.keystone.prisma.inquiry.create({
-          data: {
-            reasonOfApplication: args.reasonOfApplication,
-            diseases: args.diseases,
-            medications: args.medications,
-            currentLivingSituation: args.currentLivingSituation,
-            name: args.name,
-            email: args.email,
-            phone: args.phone,
-            age: args.age,
-            yearlyIncome: args.yearlyIncome,
-            gender: args.gender,
-            address: args.address,
-          },
-        });
+        if (apiArgs?.sessionID) {
+          await apiArgs?.keystone.prisma.inquiry.create({
+            data: {
+              sessionID: apiArgs.sessionID,
+              reasonOfApplication: args.reasonOfApplication,
+              diseases: args.diseases,
+              medications: args.medications,
+              currentLivingSituation: args.currentLivingSituation,
+              name: args.name,
+              email: args.email,
+              phone: args.phone,
+              age: args.age,
+              yearlyIncome: args.yearlyIncome,
+              gender: args.gender,
+              address: args.address,
+            },
+          });
+        }
+
         return { success: true, message: "Application submitted." };
       },
     })),
@@ -144,13 +149,16 @@ export async function getSurveyAIFunctions(apiArgs?: {
           };
         }
 
-        await apiArgs?.keystone.prisma.policy.create({
-          data: {
-            name: args.name,
-            policyName: args.policyName,
-            policyURL: args.policyURL,
-          },
-        });
+        if (apiArgs?.sessionID) {
+          await apiArgs?.keystone.prisma.policy.create({
+            data: {
+              sessionID: apiArgs.sessionID,
+              name: args.name,
+              policyName: args.policyName,
+              policyURL: args.policyURL,
+            },
+          });
+        }
         return { success: true, message: "Recommended policy submitted." };
       },
     })),

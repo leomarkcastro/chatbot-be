@@ -1725,13 +1725,13 @@ export async function getHealthAIFunctions(apiArgs: {
           zodObj.parse(args);
           await apiArgs.keystone.prisma.inquiry.create({
             data: {
-              fullname: args.fullname,
+              name: args.fullname,
               email: args.email,
               phone: args.phone,
-              policyID: args.policyID,
-              policyURL: args.policyURL,
-              zip: args.location.zip,
-              address: args.location.county,
+              // policyID: args.policyID,
+              // policyURL: args.policyURL,
+              // zip: args.location.zip,
+              // address: args.location.county,
             },
           });
           return "https://www.healthsherpa.com/?_agent_id=myacaexpress";

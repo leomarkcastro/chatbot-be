@@ -2,6 +2,7 @@ import { graphql, list } from "@keystone-6/core";
 import { checkbox, float, text, virtual } from "@keystone-6/core/fields";
 import { accessConfig } from "../../common/access/definitions/access";
 import { allow } from "../../common/access/definitions/templates";
+import { listMessages } from "../ai/services/functions/threads";
 import { ModuleDefinition } from "../definition";
 
 export const healthFormDefinition: ModuleDefinition = {
@@ -20,13 +21,26 @@ export const healthFormDefinition: ModuleDefinition = {
           yearlyIncome: float(),
           gender: text(),
           address: text(),
+          sessionID: text({ validation: { isRequired: true } }),
+          session: virtual({
+            field: graphql.field({
+              type: graphql.String,
+              async resolve(item) {
+                const messages = await listMessages(item.sessionID);
+
+                if (messages) {
+                  return JSON.stringify(messages);
+                }
+              },
+            }),
+          }),
           aiSelected: virtual({
             field: graphql.field({
               type: graphql.String,
               async resolve(item, args, context) {
                 const policy = await context.prisma.policy.findFirst({
                   where: {
-                    name: item.name,
+                    sessionID: item.sessionID,
                   },
                 });
 
@@ -51,9 +65,10 @@ export const healthFormDefinition: ModuleDefinition = {
       }),
       Policy: list({
         fields: {
-          name: text({ validation: { isRequired: true } }),
-          policyName: text({ validation: { isRequired: true } }),
-          policyURL: text({ validation: { isRequired: true } }),
+          sessionID: text({ validation: { isRequired: true } }),
+          name: text(),
+          policyName: text(),
+          policyURL: text(),
         },
         access: accessConfig({
           filter: {

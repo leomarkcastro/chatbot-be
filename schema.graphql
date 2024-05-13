@@ -248,6 +248,8 @@ type Inquiry {
   yearlyIncome: Float
   gender: String
   address: String
+  sessionID: String
+  session: String
   aiSelected: String
   addresed: Boolean
   remarks: String
@@ -273,6 +275,7 @@ input InquiryWhereInput {
   yearlyIncome: FloatNullableFilter
   gender: StringFilter
   address: StringFilter
+  sessionID: StringFilter
   addresed: BooleanFilter
   remarks: StringFilter
 }
@@ -306,6 +309,7 @@ input InquiryOrderByInput {
   yearlyIncome: OrderDirection
   gender: OrderDirection
   address: OrderDirection
+  sessionID: OrderDirection
   addresed: OrderDirection
   remarks: OrderDirection
 }
@@ -322,6 +326,7 @@ input InquiryUpdateInput {
   yearlyIncome: Float
   gender: String
   address: String
+  sessionID: String
   addresed: Boolean
   remarks: String
 }
@@ -343,12 +348,14 @@ input InquiryCreateInput {
   yearlyIncome: Float
   gender: String
   address: String
+  sessionID: String
   addresed: Boolean
   remarks: String
 }
 
 type Policy {
   id: ID!
+  sessionID: String
   name: String
   policyName: String
   policyURL: String
@@ -363,6 +370,7 @@ input PolicyWhereInput {
   OR: [PolicyWhereInput!]
   NOT: [PolicyWhereInput!]
   id: IDFilter
+  sessionID: StringFilter
   name: StringFilter
   policyName: StringFilter
   policyURL: StringFilter
@@ -370,12 +378,14 @@ input PolicyWhereInput {
 
 input PolicyOrderByInput {
   id: OrderDirection
+  sessionID: OrderDirection
   name: OrderDirection
   policyName: OrderDirection
   policyURL: OrderDirection
 }
 
 input PolicyUpdateInput {
+  sessionID: String
   name: String
   policyName: String
   policyURL: String
@@ -387,6 +397,7 @@ input PolicyUpdateArgs {
 }
 
 input PolicyCreateInput {
+  sessionID: String
   name: String
   policyName: String
   policyURL: String
