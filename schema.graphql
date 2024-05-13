@@ -248,6 +248,7 @@ type Inquiry {
   yearlyIncome: Float
   gender: String
   address: String
+  aiSelected: String
   addresed: Boolean
   remarks: String
 }

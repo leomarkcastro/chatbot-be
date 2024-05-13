@@ -67,6 +67,11 @@ export class EventHandler extends EventEmitter {
         const _args = JSON.parse(toolCall.function.arguments ?? "{}");
         const _fx = this.functions[_fxName];
 
+        if (!_fx) {
+          console.error("Function not found:", _fxName);
+          continue;
+        }
+
         if (_fx.meta) {
           _args["meta"] = _fx.meta;
         }

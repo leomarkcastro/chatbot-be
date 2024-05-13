@@ -73,6 +73,8 @@ export async function surveyCreator(args: {
         }
 
         if (errorMessages) {
+          errorMessages +=
+            "Only ask for 3 clarifications at a moment to avoid overwhelming the user.\n";
           console.log({
             success: false,
             message: errorMessages,

@@ -16,7 +16,7 @@ export async function getSurveyAIFunctions(apiArgs?: {
     ...(await surveyCreator({
       name: "submitApplication",
       description:
-        "Submit an application or inquiry for health insurance. Only ask 3 questions at a time to keep the user engaged. The user's answers could fill-out different fields if applicable. Example: I have a chronic disease and need insurance. Always ask the reason of application first, then  diseases, and then medications.",
+        "Submit an application or inquiry for health insurance. Only ask 3 questions at a time to keep the user engaged. The user's answers could fill-out different fields if applicable. Example: I have a chronic disease and need insurance. Always ask the reason of application first, then  diseases, and then medications. If the user haven't provided any value yet, use 'unspecified'.",
       fields: [
         {
           name: "reasonOfApplication",
@@ -85,6 +85,14 @@ export async function getSurveyAIFunctions(apiArgs?: {
         },
       ],
       toSubmitFunction: async (args) => {
+        // check if any fields is labelled as 'unspecified'
+        if (Object.values(args).some((v) => v === "unspecified")) {
+          return {
+            success: false,
+            message: "Some values are unspecified, clarify first the values",
+          };
+        }
+
         await apiArgs?.keystone.prisma.inquiry.create({
           data: {
             reasonOfApplication: args.reasonOfApplication,
@@ -128,6 +136,14 @@ export async function getSurveyAIFunctions(apiArgs?: {
         },
       ],
       toSubmitFunction: async (args) => {
+        // check if any fields is labelled as 'unspecified'
+        if (Object.values(args).some((v) => v === "unspecified")) {
+          return {
+            success: false,
+            message: "Some values are unspecified, clarify first the values",
+          };
+        }
+
         await apiArgs?.keystone.prisma.policy.create({
           data: {
             name: args.name,

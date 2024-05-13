@@ -1,5 +1,5 @@
-import { list } from "@keystone-6/core";
-import { checkbox, float, text } from "@keystone-6/core/fields";
+import { graphql, list } from "@keystone-6/core";
+import { checkbox, float, text, virtual } from "@keystone-6/core/fields";
 import { accessConfig } from "../../common/access/definitions/access";
 import { allow } from "../../common/access/definitions/templates";
 import { ModuleDefinition } from "../definition";
@@ -20,6 +20,22 @@ export const healthFormDefinition: ModuleDefinition = {
           yearlyIncome: float(),
           gender: text(),
           address: text(),
+          aiSelected: virtual({
+            field: graphql.field({
+              type: graphql.String,
+              async resolve(item, args, context) {
+                const policy = await context.prisma.policy.findFirst({
+                  where: {
+                    name: item.name,
+                  },
+                });
+
+                if (policy) {
+                  return `${policy.policyName} (${policy.policyURL})`;
+                }
+              },
+            }),
+          }),
           addresed: checkbox(),
           remarks: text(),
         },

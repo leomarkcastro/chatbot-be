@@ -393,6 +393,10 @@ var EventHandler = class extends import_stream.EventEmitter {
         const _fxName = toolCall.function.name;
         const _args = JSON.parse(toolCall.function.arguments ?? "{}");
         const _fx = this.functions[_fxName];
+        if (!_fx) {
+          console.error("Function not found:", _fxName);
+          continue;
+        }
         if (_fx.meta) {
           _args["meta"] = _fx.meta;
         }
@@ -2189,6 +2193,7 @@ async function surveyCreator(args) {
           }
         }
         if (errorMessages) {
+          errorMessages += "Only ask for 3 clarifications at a moment to avoid overwhelming the user.\n";
           console.log({
             success: false,
             message: errorMessages
@@ -2212,7 +2217,7 @@ async function getSurveyAIFunctions(apiArgs) {
     ...cms_functions,
     ...await surveyCreator({
       name: "submitApplication",
-      description: "Submit an application or inquiry for health insurance. Only ask 3 questions at a time to keep the user engaged. The user's answers could fill-out different fields if applicable. Example: I have a chronic disease and need insurance. Always ask the reason of application first, then  diseases, and then medications.",
+      description: "Submit an application or inquiry for health insurance. Only ask 3 questions at a time to keep the user engaged. The user's answers could fill-out different fields if applicable. Example: I have a chronic disease and need insurance. Always ask the reason of application first, then  diseases, and then medications. If the user haven't provided any value yet, use 'unspecified'.",
       fields: [
         {
           name: "reasonOfApplication",
@@ -2272,6 +2277,12 @@ async function getSurveyAIFunctions(apiArgs) {
         }
       ],
       toSubmitFunction: async (args) => {
+        if (Object.values(args).some((v) => v === "unspecified")) {
+          return {
+            success: false,
+            message: "Some values are unspecified, clarify first the values"
+          };
+        }
         await apiArgs?.keystone.prisma.inquiry.create({
           data: {
             reasonOfApplication: args.reasonOfApplication,
@@ -2311,6 +2322,12 @@ async function getSurveyAIFunctions(apiArgs) {
         }
       ],
       toSubmitFunction: async (args) => {
+        if (Object.values(args).some((v) => v === "unspecified")) {
+          return {
+            success: false,
+            message: "Some values are unspecified, clarify first the values"
+          };
+        }
         await apiArgs?.keystone.prisma.policy.create({
           data: {
             name: args.name,
@@ -2674,7 +2691,98 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
 var import_zod5 = require("zod");
 
 // graphql/operations.ts
-var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
+var LoginDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "Login" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "email" }
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" }
+            }
+          }
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "password" }
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" }
+            }
+          }
+        }
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "authenticateUserWithPassword" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "email" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "email" }
+                }
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "adminPassword" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "password" }
+                }
+              }
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                {
+                  kind: "InlineFragment",
+                  typeCondition: {
+                    kind: "NamedType",
+                    name: {
+                      kind: "Name",
+                      value: "UserAuthenticationWithPasswordSuccess"
+                    }
+                  },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sessionToken" }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
 
 // server/services/access/serverAccessConfig.ts
 var serverAccessConfig = (generatorArgs) => {
@@ -2729,13 +2837,13 @@ authRouteDeclaration.routes.set(
       })
     }),
     func: async ({
-      context: { graphql: graphql4 },
+      context: { graphql: graphql5 },
       inputData: {
         ["body" /* BODY */]: { username, password: password2 }
       },
       res
     }) => {
-      const request = await graphql4.run({
+      const request = await graphql5.run({
         query: LoginDocument,
         variables: {
           email: username,
@@ -3129,6 +3237,21 @@ var healthFormDefinition = {
           yearlyIncome: (0, import_fields2.float)(),
           gender: (0, import_fields2.text)(),
           address: (0, import_fields2.text)(),
+          aiSelected: (0, import_fields2.virtual)({
+            field: import_core3.graphql.field({
+              type: import_core3.graphql.String,
+              async resolve(item, args, context) {
+                const policy = await context.prisma.policy.findFirst({
+                  where: {
+                    name: item.name
+                  }
+                });
+                if (policy) {
+                  return `${policy.policyName} (${policy.policyURL})`;
+                }
+              }
+            })
+          }),
           addresed: (0, import_fields2.checkbox)(),
           remarks: (0, import_fields2.text)()
         },
