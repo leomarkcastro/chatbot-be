@@ -2413,7 +2413,16 @@ async function createThread() {
 }
 async function listMessages(threadId) {
   const messages = await openai.beta.threads.messages.list(threadId);
-  return messages;
+  const parsedMesasges = messages.data.map((message) => {
+    return {
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      createdAt: message.created_at
+    };
+  });
+  parsedMesasges.sort((a, b) => a.createdAt - b.createdAt);
+  return parsedMesasges;
 }
 
 // modules/ai/rest.ts
@@ -2430,8 +2439,14 @@ aiRouteDeclaration.routes.set(
       sessionID: import_zod4.z.string(),
       createdAt: import_zod4.z.number()
     }),
-    func: async ({}) => {
+    func: async ({ context }) => {
       const newThreadId = await createThread();
+      await context.prisma.chatSession.create({
+        data: {
+          sessionID: newThreadId.id,
+          createdAt: new Date(newThreadId.created_at)
+        }
+      });
       return { sessionID: newThreadId.id, createdAt: newThreadId.created_at };
     }
   })
@@ -3143,6 +3158,31 @@ var import_fields2 = require("@keystone-6/core/fields");
 var healthFormDefinition = {
   schema: [
     {
+      ChatSession: (0, import_core3.list)({
+        fields: {
+          sessionID: (0, import_fields2.text)({ validation: { isRequired: true } }),
+          session: (0, import_fields2.virtual)({
+            field: import_core3.graphql.field({
+              type: import_core3.graphql.String,
+              async resolve(item) {
+                const messages = await listMessages(item.sessionID);
+                if (messages) {
+                  return JSON.stringify(messages);
+                }
+              }
+            })
+          }),
+          createdAt: (0, import_fields2.timestamp)()
+        },
+        access: accessConfig({
+          filter: {
+            all: allow
+          },
+          operations: {
+            all: allow
+          }
+        })
+      }),
       Inquiry: (0, import_core3.list)({
         fields: {
           reasonOfApplication: (0, import_fields2.text)(),

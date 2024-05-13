@@ -1,5 +1,11 @@
 import { graphql, list } from "@keystone-6/core";
-import { checkbox, float, text, virtual } from "@keystone-6/core/fields";
+import {
+  checkbox,
+  float,
+  text,
+  timestamp,
+  virtual,
+} from "@keystone-6/core/fields";
 import { accessConfig } from "../../common/access/definitions/access";
 import { allow } from "../../common/access/definitions/templates";
 import { listMessages } from "../ai/services/functions/threads";
@@ -8,6 +14,32 @@ import { ModuleDefinition } from "../definition";
 export const healthFormDefinition: ModuleDefinition = {
   schema: [
     {
+      ChatSession: list({
+        fields: {
+          sessionID: text({ validation: { isRequired: true } }),
+          session: virtual({
+            field: graphql.field({
+              type: graphql.String,
+              async resolve(item) {
+                const messages = await listMessages(item.sessionID);
+
+                if (messages) {
+                  return JSON.stringify(messages);
+                }
+              },
+            }),
+          }),
+          createdAt: timestamp(),
+        },
+        access: accessConfig({
+          filter: {
+            all: allow,
+          },
+          operations: {
+            all: allow,
+          },
+        }),
+      }),
       Inquiry: list({
         fields: {
           reasonOfApplication: text(),

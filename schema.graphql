@@ -235,6 +235,47 @@ input UserRelateToManyForCreateInput {
   connect: [UserWhereUniqueInput!]
 }
 
+type ChatSession {
+  id: ID!
+  sessionID: String
+  session: String
+  createdAt: DateTime
+}
+
+input ChatSessionWhereUniqueInput {
+  id: ID
+}
+
+input ChatSessionWhereInput {
+  AND: [ChatSessionWhereInput!]
+  OR: [ChatSessionWhereInput!]
+  NOT: [ChatSessionWhereInput!]
+  id: IDFilter
+  sessionID: StringFilter
+  createdAt: DateTimeNullableFilter
+}
+
+input ChatSessionOrderByInput {
+  id: OrderDirection
+  sessionID: OrderDirection
+  createdAt: OrderDirection
+}
+
+input ChatSessionUpdateInput {
+  sessionID: String
+  createdAt: DateTime
+}
+
+input ChatSessionUpdateArgs {
+  where: ChatSessionWhereUniqueInput!
+  data: ChatSessionUpdateInput!
+}
+
+input ChatSessionCreateInput {
+  sessionID: String
+  createdAt: DateTime
+}
+
 type Inquiry {
   id: ID!
   reasonOfApplication: String
@@ -421,6 +462,12 @@ type Mutation {
   updateGroups(data: [GroupUpdateArgs!]!): [Group]
   deleteGroup(where: GroupWhereUniqueInput!): Group
   deleteGroups(where: [GroupWhereUniqueInput!]!): [Group]
+  createChatSession(data: ChatSessionCreateInput!): ChatSession
+  createChatSessions(data: [ChatSessionCreateInput!]!): [ChatSession]
+  updateChatSession(where: ChatSessionWhereUniqueInput!, data: ChatSessionUpdateInput!): ChatSession
+  updateChatSessions(data: [ChatSessionUpdateArgs!]!): [ChatSession]
+  deleteChatSession(where: ChatSessionWhereUniqueInput!): ChatSession
+  deleteChatSessions(where: [ChatSessionWhereUniqueInput!]!): [ChatSession]
   createInquiry(data: InquiryCreateInput!): Inquiry
   createInquiries(data: [InquiryCreateInput!]!): [Inquiry]
   updateInquiry(where: InquiryWhereUniqueInput!, data: InquiryUpdateInput!): Inquiry
@@ -477,6 +524,9 @@ type Query {
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   group(where: GroupWhereUniqueInput!): Group
   groupsCount(where: GroupWhereInput! = {}): Int
+  chatSessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
+  chatSession(where: ChatSessionWhereUniqueInput!): ChatSession
+  chatSessionsCount(where: ChatSessionWhereInput! = {}): Int
   inquiries(where: InquiryWhereInput! = {}, orderBy: [InquiryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InquiryWhereUniqueInput): [Inquiry!]
   inquiry(where: InquiryWhereUniqueInput!): Inquiry
   inquiriesCount(where: InquiryWhereInput! = {}): Int

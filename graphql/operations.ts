@@ -38,6 +38,48 @@ export type BooleanFilter = {
   not?: InputMaybe<BooleanFilter>;
 };
 
+export type ChatSession = {
+  __typename?: "ChatSession";
+  createdAt?: Maybe<Scalars["DateTime"]["output"]>;
+  id: Scalars["ID"]["output"];
+  session?: Maybe<Scalars["String"]["output"]>;
+  sessionID?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type ChatSessionCreateInput = {
+  createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type ChatSessionOrderByInput = {
+  createdAt?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  sessionID?: InputMaybe<OrderDirection>;
+};
+
+export type ChatSessionUpdateArgs = {
+  data: ChatSessionUpdateInput;
+  where: ChatSessionWhereUniqueInput;
+};
+
+export type ChatSessionUpdateInput = {
+  createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  sessionID?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type ChatSessionWhereInput = {
+  AND?: InputMaybe<Array<ChatSessionWhereInput>>;
+  NOT?: InputMaybe<Array<ChatSessionWhereInput>>;
+  OR?: InputMaybe<Array<ChatSessionWhereInput>>;
+  createdAt?: InputMaybe<DateTimeNullableFilter>;
+  id?: InputMaybe<IdFilter>;
+  sessionID?: InputMaybe<StringFilter>;
+};
+
+export type ChatSessionWhereUniqueInput = {
+  id?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
 export type ClientItemAuthenticationWithPasswordFailure = {
   __typename?: "ClientItemAuthenticationWithPasswordFailure";
   message: Scalars["String"]["output"];
@@ -391,6 +433,8 @@ export type Mutation = {
   authclient_login?: Maybe<ClientItemAuthenticationWithPasswordResult>;
   authclient_register?: Maybe<Scalars["Boolean"]["output"]>;
   authenticateUserWithPassword?: Maybe<UserAuthenticationWithPasswordResult>;
+  createChatSession?: Maybe<ChatSession>;
+  createChatSessions?: Maybe<Array<Maybe<ChatSession>>>;
   createGroup?: Maybe<Group>;
   createGroups?: Maybe<Array<Maybe<Group>>>;
   createInitialUser: UserAuthenticationWithPasswordSuccess;
@@ -400,6 +444,8 @@ export type Mutation = {
   createPolicy?: Maybe<Policy>;
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
+  deleteChatSession?: Maybe<ChatSession>;
+  deleteChatSessions?: Maybe<Array<Maybe<ChatSession>>>;
   deleteGroup?: Maybe<Group>;
   deleteGroups?: Maybe<Array<Maybe<Group>>>;
   deleteInquiries?: Maybe<Array<Maybe<Inquiry>>>;
@@ -410,6 +456,8 @@ export type Mutation = {
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars["Boolean"]["output"];
   test?: Maybe<Scalars["String"]["output"]>;
+  updateChatSession?: Maybe<ChatSession>;
+  updateChatSessions?: Maybe<Array<Maybe<ChatSession>>>;
   updateGroup?: Maybe<Group>;
   updateGroups?: Maybe<Array<Maybe<Group>>>;
   updateInquiries?: Maybe<Array<Maybe<Inquiry>>>;
@@ -440,6 +488,14 @@ export type MutationAuthclient_RegisterArgs = {
 export type MutationAuthenticateUserWithPasswordArgs = {
   adminPassword: Scalars["String"]["input"];
   email: Scalars["String"]["input"];
+};
+
+export type MutationCreateChatSessionArgs = {
+  data: ChatSessionCreateInput;
+};
+
+export type MutationCreateChatSessionsArgs = {
+  data: Array<ChatSessionCreateInput>;
 };
 
 export type MutationCreateGroupArgs = {
@@ -478,6 +534,14 @@ export type MutationCreateUsersArgs = {
   data: Array<UserCreateInput>;
 };
 
+export type MutationDeleteChatSessionArgs = {
+  where: ChatSessionWhereUniqueInput;
+};
+
+export type MutationDeleteChatSessionsArgs = {
+  where: Array<ChatSessionWhereUniqueInput>;
+};
+
 export type MutationDeleteGroupArgs = {
   where: GroupWhereUniqueInput;
 };
@@ -512,6 +576,15 @@ export type MutationDeleteUsersArgs = {
 
 export type MutationTestArgs = {
   email?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type MutationUpdateChatSessionArgs = {
+  data: ChatSessionUpdateInput;
+  where: ChatSessionWhereUniqueInput;
+};
+
+export type MutationUpdateChatSessionsArgs = {
+  data: Array<ChatSessionUpdateArgs>;
 };
 
 export type MutationUpdateGroupArgs = {
@@ -632,6 +705,9 @@ export type PolicyWhereUniqueInput = {
 export type Query = {
   __typename?: "Query";
   authenticatedItem?: Maybe<AuthenticatedItem>;
+  chatSession?: Maybe<ChatSession>;
+  chatSessions?: Maybe<Array<ChatSession>>;
+  chatSessionsCount?: Maybe<Scalars["Int"]["output"]>;
   group?: Maybe<Group>;
   groups?: Maybe<Array<Group>>;
   groupsCount?: Maybe<Scalars["Int"]["output"]>;
@@ -646,6 +722,22 @@ export type Query = {
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
   usersCount?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type QueryChatSessionArgs = {
+  where: ChatSessionWhereUniqueInput;
+};
+
+export type QueryChatSessionsArgs = {
+  cursor?: InputMaybe<ChatSessionWhereUniqueInput>;
+  orderBy?: Array<ChatSessionOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: ChatSessionWhereInput;
+};
+
+export type QueryChatSessionsCountArgs = {
+  where?: ChatSessionWhereInput;
 };
 
 export type QueryGroupArgs = {

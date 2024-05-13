@@ -23,8 +23,14 @@ aiRouteDeclaration.routes.set(
       sessionID: z.string(),
       createdAt: z.number(),
     }),
-    func: async ({}) => {
+    func: async ({ context }) => {
       const newThreadId = await createThread();
+      await context.prisma.chatSession.create({
+        data: {
+          sessionID: newThreadId.id,
+          createdAt: new Date(newThreadId.created_at),
+        },
+      });
       return { sessionID: newThreadId.id, createdAt: newThreadId.created_at };
     },
   }),

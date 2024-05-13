@@ -39,6 +39,12 @@ model Group {
   members User[] @relation("Group_members")
 }
 
+model ChatSession {
+  id        String    @id @default(cuid())
+  sessionID String    @default("")
+  createdAt DateTime?
+}
+
 model Inquiry {
   id                     String  @id @default(cuid())
   reasonOfApplication    String  @default("")

@@ -12,5 +12,15 @@ export async function fetchThread(threadId: string) {
 
 export async function listMessages(threadId: string) {
   const messages = await openai.beta.threads.messages.list(threadId);
-  return messages;
+  const parsedMesasges = messages.data.map((message) => {
+    return {
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      createdAt: message.created_at,
+    };
+  });
+  // sort by createdAt
+  parsedMesasges.sort((a, b) => a.createdAt - b.createdAt);
+  return parsedMesasges;
 }
