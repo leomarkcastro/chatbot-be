@@ -533,7 +533,7 @@ async function fetchFunction(args) {
     } else {
       errorMessage = error.message;
     }
-    errorMessage += " (Try to resolve it automatically by adjusting the parameters, if it still failed, stop)";
+    errorMessage += " (Focus first in trying to resolve this issue by automatically by adjusting the parameters, if it still failed after three unsuccesful tries, stop the attempt)";
     console.log(errorMessage);
     return errorMessage;
   }
@@ -3482,7 +3482,7 @@ var configDef = injectModules({
   },
   server: {
     cors: {
-      origin: CONFIG.SERVER_CORS_URL.split(",")
+      origin: CONFIG.SERVER_CORS_URL.indexOf("*") !== -1 ? true : CONFIG.SERVER_CORS_URL.split(",")
     }
   }
 });

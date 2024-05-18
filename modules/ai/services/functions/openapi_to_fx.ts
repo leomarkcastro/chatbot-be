@@ -175,7 +175,7 @@ export async function fetchFunction(args: any) {
       errorMessage = error.message;
     }
     errorMessage +=
-      " (Try to resolve it automatically by adjusting the parameters, if it still failed, stop)";
+      " (Focus first in trying to resolve this issue by automatically by adjusting the parameters, if it still failed after three unsuccesful tries, stop the attempt)";
     console.log(errorMessage);
     return errorMessage;
   }
